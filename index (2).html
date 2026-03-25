@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Innovexa ERP</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--surface:#111118;--surface2:#1a1a24;--surface3:#22222e;
+  --border:#2a2a38;--border2:#3a3a4e;
+  --text:#e8e6f0;--text2:#8886a0;--text3:#555570;
+  --accent:#6c63ff;--accent-l:rgba(108,99,255,.12);--accent-d:#4a43cc;
+  --green:#00d084;--green-l:rgba(0,208,132,.1);
+  --red:#ff4d6d;--red-l:rgba(255,77,109,.1);
+  --amber:#ffb800;--amber-l:rgba(255,184,0,.1);
+  --blue:#00b4d8;--blue-l:rgba(0,180,216,.1);
+  --font:'IBM Plex Sans',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+  --r:8px;--r2:12px;--r3:16px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:var(--font);color:var(--text);font-size:14px;display:flex;flex-direction:column}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:0}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{flex-shrink:0;height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:12px}
+.content{flex:1;overflow-y:auto;padding:24px}
+
+/* ── SIDEBAR ── */
+.sidebar-logo{padding:20px 16px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.logo-mark{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;font-family:var(--mono);flex-shrink:0}
+.logo-text{font-size:13px;font-weight:600;color:var(--text);letter-spacing:.5px}
+.logo-sub{font-size:10px;color:var(--text3);font-family:var(--mono)}
+.sidebar-section{padding:16px 10px 6px;font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r);cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;margin:1px 6px;transition:all .15s}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent-l);color:var(--accent)}
+.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:.7}
+.nav-item.active svg{opacity:1}
+.sidebar-bottom{margin-top:auto;padding:12px;border-top:1px solid var(--border)}
+.sidebar-stat{background:var(--surface2);border-radius:var(--r2);padding:10px 12px;margin-bottom:6px}
+.sidebar-stat-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;font-family:var(--mono)}
+.sidebar-stat-val{font-size:16px;font-weight:600;font-family:var(--mono);color:var(--text)}
+
+/* ── TOPBAR ── */
+.topbar-title{font-size:15px;font-weight:600;color:var(--text);flex:1}
+.topbar-btn{height:34px;padding:0 14px;border-radius:var(--r);border:1px solid var(--border2);background:var(--surface2);color:var(--text2);font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap}
+.topbar-btn:hover{background:var(--surface3);color:var(--text)}
+.topbar-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.topbar-btn.primary:hover{background:var(--accent-d)}
+
+/* ── VIEWS ── */
+.view{display:none}.view.active{display:block}
+
+/* ── STATS GRID ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r3);padding:16px 18px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-card.green::before{background:var(--green)}
+.stat-card.red::before{background:var(--red)}
+.stat-card.amber::before{background:var(--amber)}
+.stat-card.blue::before{background:var(--blue)}
+.stat-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;font-family:var(--mono)}
+.stat-val{font-size:22px;font-weight:600;font-family:var(--mono);color:var(--text);letter-spacing:-.5px}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:4px}
+.stat-badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600;margin-top:6px;font-family:var(--mono)}
+
+/* ── TABLE ── */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r3);overflow:hidden}
+.table-head{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);gap:12px}
+.table-title{font-size:13px;font-weight:600;color:var(--text);flex:1}
+.table-search{height:30px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:0 10px 0 28px;font-family:var(--font);font-size:12px;color:var(--text);width:180px;position:relative}
+.search-wrap{position:relative}
+.search-wrap input{width:180px;height:30px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:0 10px 0 28px;font-family:var(--font);font-size:12px;color:var(--text)}
+.search-wrap input:focus{outline:none;border-color:var(--accent)}
+.search-wrap svg{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:12px;height:12px;color:var(--text3)}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--surface2)}
+th{padding:10px 14px;text-align:left;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-family:var(--mono);white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:11px 14px;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border);vertical-align:middle}
+td:first-child{color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+.td-mono{font-family:var(--mono);font-size:12px}
+.td-actions{display:flex;gap:6px;opacity:0;transition:opacity .15s}
+tr:hover .td-actions{opacity:1}
+.act-btn{width:26px;height:26px;border-radius:6px;border:1px solid var(--border2);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text2);transition:all .15s}
+.act-btn:hover{background:var(--surface3);color:var(--text)}
+.act-btn.danger:hover{background:var(--red-l);color:var(--red);border-color:var(--red)}
+
+/* ── BADGES ── */
+.badge{padding:3px 9px;border-radius:99px;font-size:10px;font-weight:600;font-family:var(--mono);display:inline-block;white-space:nowrap}
+.badge-green{background:var(--green-l);color:var(--green)}
+.badge-red{background:var(--red-l);color:var(--red)}
+.badge-amber{background:var(--amber-l);color:var(--amber)}
+.badge-blue{background:var(--blue-l);color:var(--blue)}
+.badge-gray{background:var(--surface3);color:var(--text3)}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;backdrop-filter:blur(4px)}
+.modal-bg.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r3);width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;transform:translateY(8px);transition:transform .2s}
+.modal-bg.open .modal{transform:translateY(0)}
+.modal-header{padding:20px 22px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:15px;font-weight:600;color:var(--text)}
+.modal-close{width:28px;height:28px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text2)}
+.modal-body{padding:20px 22px}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+
+/* ── FORMS ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid.cols3{grid-template-columns:1fr 1fr 1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-family:var(--mono)}
+.form-inp{height:38px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:0 10px;font-family:var(--font);font-size:14px;color:var(--text);transition:border-color .15s;-webkit-appearance:none}
+.form-inp:focus{outline:none;border-color:var(--accent);background:var(--surface3)}
+.form-sel{height:38px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:0 10px;font-family:var(--font);font-size:14px;color:var(--text);cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2 3l3 4 3-4' fill='none' stroke='%23555570' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.form-sel:focus{outline:none;border-color:var(--accent)}
+.form-textarea{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;font-family:var(--font);font-size:14px;color:var(--text);min-height:72px;resize:vertical;transition:border-color .15s;width:100%}
+.form-textarea:focus{outline:none;border-color:var(--accent)}
+.form-divider{grid-column:1/-1;border:none;border-top:1px solid var(--border);margin:4px 0}
+.form-section-title{grid-column:1/-1;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-family:var(--mono);margin-top:4px}
+
+/* ── BUTTONS ── */
+.btn{height:36px;padding:0 16px;border-radius:var(--r);border:1px solid var(--border2);background:var(--surface2);color:var(--text2);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--surface3);color:var(--text)}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.primary:hover{background:var(--accent-d)}
+.btn.danger{color:var(--red);border-color:var(--red)}
+.btn.danger:hover{background:var(--red-l)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── TABS ── */
+.tab-bar{display:flex;gap:4px;margin-bottom:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:4px;width:fit-content}
+.tab{padding:6px 16px;border-radius:var(--r);font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;transition:all .15s;font-family:var(--mono)}
+.tab.active{background:var(--accent);color:#fff}
+.tab:not(.active):hover{color:var(--text);background:var(--surface2)}
+
+/* ── EMPTY ── */
+.empty{padding:48px;text-align:center;color:var(--text3)}
+.empty-icon{font-size:36px;margin-bottom:12px;opacity:.5}
+.empty-title{font-size:14px;color:var(--text2);margin-bottom:4px;font-weight:500}
+.empty-sub{font-size:12px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--r2);padding:10px 16px;font-size:13px;color:var(--text);display:flex;align-items:center;gap:8px;transform:translateY(8px);opacity:0;transition:all .25s;pointer-events:none;font-family:var(--mono)}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* ── LOADING ── */
+.loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:16px}
+.loading-screen.hidden{display:none}
+.spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── REPORT ── */
+.report-section{margin-bottom:24px}
+.report-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-family:var(--mono);margin-bottom:10px}
+.report-row{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-radius:var(--r);transition:background .12s}
+.report-row:hover{background:var(--surface2)}
+.report-row-name{font-size:13px;color:var(--text2)}
+.report-row-val{font-size:13px;font-family:var(--mono);font-weight:600;color:var(--text)}
+.report-total{display:flex;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--border);margin-top:6px}
+.report-total-label{font-size:12px;font-weight:600;color:var(--text);font-family:var(--mono)}
+.report-total-val{font-size:16px;font-weight:600;font-family:var(--mono)}
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;align-items:center}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+  .form-grid.cols3{grid-template-columns:1fr}
+  .modal{width:95vw}
+}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loading">
+  <div class="spinner"></div>
+  <div style="font-size:12px;color:var(--text3);font-family:var(--mono)">Cargando Innovexa ERP...</div>
+</div>
+
+<div class="app" id="app" style="display:none">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">IN</div>
+      <div>
+        <div class="logo-text">INNOVEXA</div>
+        <div class="logo-sub">ERP v1.0</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">Principal</div>
+    <div class="nav-item active" id="nav-dashboard" onclick="showView('dashboard')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+      Dashboard
+    </div>
+
+    <div class="sidebar-section">Ventas</div>
+    <div class="nav-item" id="nav-fventas" onclick="showView('fventas')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h10v12H3z"/><line x1="5" y1="6" x2="11" y2="6"/><line x1="5" y1="9" x2="9" y2="9"/></svg>
+      Facturas Venta
+    </div>
+    <div class="nav-item" id="nav-cobros" onclick="showView('cobros')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+      Cobros
+    </div>
+    <div class="nav-item" id="nav-clientes" onclick="showView('clientes')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5"/></svg>
+      Clientes
+    </div>
+
+    <div class="sidebar-section">Compras</div>
+    <div class="nav-item" id="nav-fcompras" onclick="showView('fcompras')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h10v12H3z"/><line x1="5" y1="6" x2="11" y2="6"/><line x1="5" y1="9" x2="9" y2="9"/></svg>
+      Facturas Compra
+    </div>
+    <div class="nav-item" id="nav-pagos" onclick="showView('pagos')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="9" rx="1"/><path d="M2 7h12"/><circle cx="6" cy="10" r="1" fill="currentColor"/></svg>
+      Pagos
+    </div>
+    <div class="nav-item" id="nav-proveedores" onclick="showView('proveedores')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="8" width="12" height="6" rx="1"/><path d="M5 8V6a3 3 0 0 1 6 0v2"/></svg>
+      Proveedores
+    </div>
+
+    <div class="sidebar-section">Reportes</div>
+    <div class="nav-item" id="nav-reportes" onclick="showView('reportes')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="13" x2="3" y2="7"/><line x1="7" y1="13" x2="7" y2="4"/><line x1="11" y1="13" x2="11" y2="9"/><line x1="1" y1="13" x2="15" y2="13"/></svg>
+      Reportes
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-stat">
+        <div class="sidebar-stat-label">Por cobrar</div>
+        <div class="sidebar-stat-val" id="sb-cobrar">$0</div>
+      </div>
+      <div class="sidebar-stat">
+        <div class="sidebar-stat-label">Por pagar</div>
+        <div class="sidebar-stat-val" id="sb-pagar">$0</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div id="topbar-actions"></div>
+    </div>
+    <div class="content" id="content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div class="view active" id="view-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card green">
+            <div class="stat-label">Total Cobrado (mes)</div>
+            <div class="stat-val" id="d-cobrado">$0</div>
+            <div class="stat-sub" id="d-cobrado-sub">0 cobros</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-label">Total Pagado (mes)</div>
+            <div class="stat-val" id="d-pagado">$0</div>
+            <div class="stat-sub" id="d-pagado-sub">0 pagos</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-label">Facturas Pendientes</div>
+            <div class="stat-val" id="d-pend-v">$0</div>
+            <div class="stat-sub" id="d-pend-v-sub">por cobrar</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-label">Facturas a Pagar</div>
+            <div class="stat-val" id="d-pend-c">$0</div>
+            <div class="stat-sub" id="d-pend-c-sub">por pagar</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="table-wrap">
+            <div class="table-head"><div class="table-title">Últimas Facturas de Venta</div></div>
+            <table><thead><tr><th>N°</th><th>Cliente</th><th>Total</th><th>Estado</th></tr></thead>
+            <tbody id="d-fventas"></tbody></table>
+          </div>
+          <div class="table-wrap">
+            <div class="table-head"><div class="table-title">Últimas Facturas de Compra</div></div>
+            <table><thead><tr><th>N°</th><th>Proveedor</th><th>Total</th><th>Estado</th></tr></thead>
+            <tbody id="d-fcompras"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ FACTURAS VENTA ══ -->
+      <div class="view" id="view-fventas">
+        <div class="table-wrap">
+          <div class="table-head">
+            <div class="table-title">Facturas de Venta</div>
+            <div class="search-wrap"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4"/><path d="m11 11 2 2"/></svg><input type="text" placeholder="Buscar..." id="fv-search" oninput="renderFVentas()"></div>
+          </div>
+          <table>
+            <thead><tr><th>N° Factura</th><th>Tipo</th><th>Fecha</th><th>Cliente</th><th>Neto</th><th>IVA</th><th>Total</th><th>Moneda</th><th>Estado</th><th></th></tr></thead>
+            <tbody id="fventas-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ COBROS ══ -->
+      <div class="view" id="view-cobros">
+        <div class="table-wrap">
+          <div class="table-head">
+            <div class="table-title">Cobros</div>
+            <div class="search-wrap"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4"/><path d="m11 11 2 2"/></svg><input type="text" placeholder="Buscar..." id="co-search" oninput="renderCobros()"></div>
+          </div>
+          <table>
+            <thead><tr><th>Fecha</th><th>Cliente</th><th>Factura</th><th>Medio</th><th>Importe</th><th>Moneda</th><th>Referencia</th><th></th></tr></thead>
+            <tbody id="cobros-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ CLIENTES ══ -->
+      <div class="view" id="view-clientes">
+        <div class="table-wrap">
+          <div class="table-head">
+            <div class="table-title">Clientes</div>
+            <div class="search-wrap"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4"/><path d="m11 11 2 2"/></svg><input type="text" placeholder="Buscar..." id="cl-search" oninput="renderClientes()"></div>
+          </div>
+          <table>
+            <thead><tr><th>Razón Social</th><th>CUIT</th><th>Cond. IVA</th><th>Email</th><th>Teléfono</th><th>Saldo</th><th></th></tr></thead>
+            <tbody id="clientes-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ FACTURAS COMPRA ══ -->
+      <div class="view" id="view-fcompras">
+        <div class="table-wrap">
+          <div class="table-head">
+            <div class="table-title">Facturas de Compra</div>
+            <div class="search-wrap"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4"/><path d="m11 11 2 2"/></svg><input type="text" placeholder="Buscar..." id="fc-search" oninput="renderFCompras()"></div>
+          </div>
+          <table>
+            <thead><tr><th>N° Factura</th><th>Tipo</th><th>Fecha</th><th>Proveedor</th><th>Neto</th><th>IVA</th><th>Total</th><th>Moneda</th><th>Estado</th><th></th></tr></thead>
+            <tbody id="fcompras-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ PAGOS ══ -->
+      <div class="view" id="view-pagos">
+        <div class="table-wrap">
+          <div class="table-head">
+            <div class="table-title">Pagos</div>
+            <div class="search-wrap"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4"/><path d="m11 11 2 2"/></svg><input type="text" placeholder="Buscar..." id="pa-search" oninput="renderPagos()"></div>
+          </div>
+          <table>
+            <thead><tr><th>Fecha</th><th>Proveedor</th><th>Factura</th><th>Medio</th><th>Importe</th><th>Moneda</th><th>Referencia</th><th></th></tr></thead>
+            <tbody id="pagos-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ PROVEEDORES ══ -->
+      <div class="view" id="view-proveedores">
+        <div class="table-wrap">
+          <div class="table-head">
+            <div class="table-title">Proveedores</div>
+            <div class="search-wrap"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4"/><path d="m11 11 2 2"/></svg><input type="text" placeholder="Buscar..." id="pr-search" oninput="renderProveedores()"></div>
+          </div>
+          <table>
+            <thead><tr><th>Razón Social</th><th>CUIT</th><th>Cond. IVA</th><th>Email</th><th>Teléfono</th><th>Saldo</th><th></th></tr></thead>
+            <tbody id="proveedores-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ REPORTES ══ -->
+      <div class="view" id="view-reportes">
+        <div class="tab-bar">
+          <div class="tab active" onclick="reportTab(this,'saldos-clientes')">Saldos Clientes</div>
+          <div class="tab" onclick="reportTab(this,'saldos-proveedores')">Saldos Proveedores</div>
+          <div class="tab" onclick="reportTab(this,'flujo-caja')">Flujo de Caja</div>
+          <div class="tab" onclick="reportTab(this,'iva-ventas')">IVA Ventas</div>
+          <div class="tab" onclick="reportTab(this,'iva-compras')">IVA Compras</div>
+        </div>
+        <div class="filter-bar">
+          <select class="form-sel" id="rep-mes" style="width:120px" onchange="renderReporte()">
+            <option value="">Todos los meses</option>
+          </select>
+          <select class="form-sel" id="rep-anio" style="width:100px" onchange="renderReporte()">
+            <option value="">Todos los años</option>
+          </select>
+        </div>
+        <div id="reporte-content"></div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg" onclick="handleModalClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Modal</div>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════
+   CONFIG
+══════════════════════════════════════════ */
+const SUPA_URL = 'https://ivlvlsgkffsgetjcbzuo.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2bHZsc2drZmZzZ2V0amNienVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjM2MzUsImV4cCI6MjA5MDAzOTYzNX0.wSBnzVFxEXmN4bsFNDA9C-XGGvb5f9cMC1SqE-veHJI';
+
+/* ══════════════════════════════════════════
+   REST CLIENT
+══════════════════════════════════════════ */
+async function api(method, table, body=null, query=''){
+  const url = `${SUPA_URL}/rest/v1/${table}${query?'?'+query:''}`;
+  const r = await fetch(url, {
+    method,
+    headers: {'Content-Type':'application/json','apikey':SUPA_KEY,'Prefer':'return=representation'},
+    body: body ? JSON.stringify(body) : null
+  });
+  if(!r.ok){ const e=await r.json().catch(()=>({})); throw new Error(e.message||'Error '+r.status) }
+  const t = await r.text(); return t ? JSON.parse(t) : null;
+}
+const dbGet = (table, q='') => api('GET', table, null, q).then(r=>r||[]);
+const dbInsert = (table, data) => api('POST', table, Array.isArray(data)?data:[data]).then(r=>Array.isArray(r)?r[0]:r);
+const dbUpdate = (table, data, filter) => api('PATCH', table, data, filter);
+const dbDelete = (table, filter) => api('DELETE', table, null, filter);
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let clientes=[], proveedores=[], fventas=[], fcompras=[], cobros=[], pagos=[];
+let activeView='dashboard', activeReport='saldos-clientes';
+
+/* ══════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════ */
+const q = id => document.getElementById(id);
+const escH = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const today = () => new Date().toFullYear ? new Date().toISOString().split('T')[0] : localDate();
+function localDate(d){ const dt=d||new Date(); return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0') }
+function fmtDate(s){ if(!s)return'—'; const[y,m,d]=s.split('-'); return`${d}/${m}/${y}` }
+function fmtNum(n){ return (n||0).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2}) }
+function fmtMoney(n, mon='ARS'){ return (mon==='USD'?'U$S ':'$')+fmtNum(n||0) }
+
+function showToast(msg, type='ok'){
+  const t=q('toast'); t.textContent=(type==='ok'?'✓ ':type==='err'?'✕ ':'⚠ ')+msg;
+  t.style.borderColor=type==='ok'?'var(--green)':type==='err'?'var(--red)':'var(--amber)';
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function estadoBadge(e){
+  const map={pendiente:'badge-amber',cobrada:'badge-green',pagada:'badge-green',parcial:'badge-blue',anulada:'badge-gray'};
+  const labels={pendiente:'Pendiente',cobrada:'Cobrada',pagada:'Pagada',parcial:'Parcial',anulada:'Anulada'};
+  return `<span class="badge ${map[e]||'badge-gray'}">${labels[e]||e}</span>`;
+}
+
+function tipoLabel(t){ return t||'—' }
+function medioLabel(m){ return{transferencia:'Transferencia',cheque:'Cheque',efectivo:'Efectivo',tarjeta:'Tarjeta',otro:'Otro'}[m]||m||'—' }
+function condIVALabel(c){ return{RI:'Resp. Inscripto',MO:'Monotributista',EX:'Exento',CF:'Cons. Final'}[c]||c||'—' }
+
+/* ══════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════ */
+const VIEW_TITLES = {
+  dashboard:'Dashboard', fventas:'Facturas de Venta', cobros:'Cobros',
+  clientes:'Clientes', fcompras:'Facturas de Compra', pagos:'Pagos',
+  proveedores:'Proveedores', reportes:'Reportes'
+};
+const VIEW_ACTIONS = {
+  fventas: () => `<button class="topbar-btn primary" onclick="openModalFV()">+ Nueva Factura</button>`,
+  cobros: () => `<button class="topbar-btn primary" onclick="openModalCobro()">+ Nuevo Cobro</button>`,
+  clientes: () => `<button class="topbar-btn primary" onclick="openModalCliente()">+ Nuevo Cliente</button>`,
+  fcompras: () => `<button class="topbar-btn primary" onclick="openModalFC()">+ Nueva Factura</button>`,
+  pagos: () => `<button class="topbar-btn primary" onclick="openModalPago()">+ Nuevo Pago</button>`,
+  proveedores: () => `<button class="topbar-btn primary" onclick="openModalProveedor()">+ Nuevo Proveedor</button>`,
+};
+
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  q('view-'+name).classList.add('active');
+  q('nav-'+name)?.classList.add('active');
+  q('topbar-title').textContent = VIEW_TITLES[name]||name;
+  q('topbar-actions').innerHTML = VIEW_ACTIONS[name]?.()||'';
+  activeView=name;
+  q('content').scrollTop=0;
+  if(name==='dashboard') renderDashboard();
+  if(name==='fventas') renderFVentas();
+  if(name==='cobros') renderCobros();
+  if(name==='clientes') renderClientes();
+  if(name==='fcompras') renderFCompras();
+  if(name==='pagos') renderPagos();
+  if(name==='proveedores') renderProveedores();
+  if(name==='reportes') renderReporte();
+}
+
+/* ══════════════════════════════════════════
+   MODAL
+══════════════════════════════════════════ */
+function openModal(title, body, footer=''){
+  q('modal-title').textContent=title;
+  q('modal-body').innerHTML=body;
+  q('modal-footer').innerHTML=footer;
+  q('modal-bg').classList.add('open');
+}
+function closeModal(){ q('modal-bg').classList.remove('open') }
+function handleModalClick(e){ if(e.target===q('modal-bg')) closeModal() }
+
+/* ══════════════════════════════════════════
+   LOAD DATA
+══════════════════════════════════════════ */
+async function loadAll(){
+  [clientes, proveedores, fventas, fcompras, cobros, pagos] = await Promise.all([
+    dbGet('clientes','select=*&order=razon_social.asc'),
+    dbGet('proveedores','select=*&order=razon_social.asc'),
+    dbGet('facturas_venta','select=*&order=fecha.desc'),
+    dbGet('facturas_compra','select=*&order=fecha.desc'),
+    dbGet('cobros','select=*&order=fecha.desc'),
+    dbGet('pagos','select=*&order=fecha.desc'),
+  ]);
+  updateSidebar();
+}
+
+function updateSidebar(){
+  const pendV = fventas.filter(f=>f.estado==='pendiente'||f.estado==='parcial').reduce((s,f)=>s+(f.total||0),0);
+  const pendC = fcompras.filter(f=>f.estado==='pendiente'||f.estado==='parcial').reduce((s,f)=>s+(f.total||0),0);
+  q('sb-cobrar').textContent = '$'+fmtNum(pendV);
+  q('sb-pagar').textContent = '$'+fmtNum(pendC);
+}
+
+/* ══════════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════════ */
+function renderDashboard(){
+  const now = new Date();
+  const mesActual = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const cobrosMes = cobros.filter(c=>c.fecha?.startsWith(mesActual));
+  const pagosMes = pagos.filter(p=>p.fecha?.startsWith(mesActual));
+  const totalCobrado = cobrosMes.reduce((s,c)=>s+(c.importe||0),0);
+  const totalPagado = pagosMes.reduce((s,p)=>s+(p.importe||0),0);
+  const pendV = fventas.filter(f=>f.estado==='pendiente'||f.estado==='parcial');
+  const pendC = fcompras.filter(f=>f.estado==='pendiente'||f.estado==='parcial');
+  q('d-cobrado').textContent = '$'+fmtNum(totalCobrado);
+  q('d-cobrado-sub').textContent = cobrosMes.length+' cobros este mes';
+  q('d-pagado').textContent = '$'+fmtNum(totalPagado);
+  q('d-pagado-sub').textContent = pagosMes.length+' pagos este mes';
+  q('d-pend-v').textContent = '$'+fmtNum(pendV.reduce((s,f)=>s+(f.total||0),0));
+  q('d-pend-v-sub').textContent = pendV.length+' facturas por cobrar';
+  q('d-pend-c').textContent = '$'+fmtNum(pendC.reduce((s,f)=>s+(f.total||0),0));
+  q('d-pend-c-sub').textContent = pendC.length+' facturas por pagar';
+  // Recent tables
+  q('d-fventas').innerHTML = fventas.slice(0,6).map(f=>{
+    const cl = clientes.find(c=>c.id===f.cliente_id);
+    return `<tr><td class="td-mono">${escH(f.numero)}</td><td>${escH(cl?.razon_social||'—')}</td><td class="td-mono">${fmtMoney(f.total,f.moneda)}</td><td>${estadoBadge(f.estado)}</td></tr>`;
+  }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:20px">Sin datos</td></tr>';
+  q('d-fcompras').innerHTML = fcompras.slice(0,6).map(f=>{
+    const pr = proveedores.find(p=>p.id===f.proveedor_id);
+    return `<tr><td class="td-mono">${escH(f.numero)}</td><td>${escH(pr?.razon_social||'—')}</td><td class="td-mono">${fmtMoney(f.total,f.moneda)}</td><td>${estadoBadge(f.estado)}</td></tr>`;
+  }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:20px">Sin datos</td></tr>';
+}
+
+/* ══════════════════════════════════════════
+   FACTURAS VENTA
+══════════════════════════════════════════ */
+function renderFVentas(){
+  const search = (q('fv-search')?.value||'').toLowerCase();
+  const filtered = fventas.filter(f=>{
+    if(!search) return true;
+    const cl = clientes.find(c=>c.id===f.cliente_id);
+    return f.numero?.toLowerCase().includes(search)||cl?.razon_social?.toLowerCase().includes(search);
+  });
+  q('fventas-tbody').innerHTML = filtered.map(f=>{
+    const cl = clientes.find(c=>c.id===f.cliente_id);
+    const iva = (f.iva_21||0)+(f.iva_105||0);
+    return `<tr>
+      <td class="td-mono">${escH(f.numero)}</td>
+      <td><span class="badge badge-gray">${f.tipo}</span></td>
+      <td class="td-mono">${fmtDate(f.fecha)}</td>
+      <td>${escH(cl?.razon_social||'—')}</td>
+      <td class="td-mono">${fmtMoney(f.neto_gravado,f.moneda)}</td>
+      <td class="td-mono">${fmtMoney(iva,f.moneda)}</td>
+      <td class="td-mono" style="color:var(--text)">${fmtMoney(f.total,f.moneda)}</td>
+      <td><span class="badge ${f.moneda==='USD'?'badge-green':'badge-gray'}">${f.moneda}</span></td>
+      <td>${estadoBadge(f.estado)}</td>
+      <td><div class="td-actions">
+        <div class="act-btn" onclick="editFV('${f.id}')" title="Editar">✏️</div>
+        <div class="act-btn" onclick="openModalCobro('${f.id}')" title="Registrar cobro">💰</div>
+        <div class="act-btn danger" onclick="deleteFV('${f.id}')" title="Eliminar">✕</div>
+      </div></td>
+    </tr>`;
+  }).join('') || emptyRow(10);
+}
+
+function fvForm(f=null){
+  const cliOpts = clientes.map(c=>`<option value="${c.id}"${f?.cliente_id===c.id?' selected':''}>${escH(c.razon_social)}</option>`).join('');
+  return `<div class="form-grid">
+    <div class="form-group"><label class="form-label">N° Factura *</label><input class="form-inp" id="fv-numero" type="text" placeholder="0001-00000001" value="${escH(f?.numero||'')}"></div>
+    <div class="form-group"><label class="form-label">Tipo *</label>
+      <select class="form-sel" id="fv-tipo">
+        ${['A','B','C','NC_A','NC_B','ND_A','ND_B'].map(t=>`<option value="${t}"${f?.tipo===t?' selected':''}>${t.replace('_',' ')}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Fecha *</label><input class="form-inp" id="fv-fecha" type="date" value="${f?.fecha||localDate()}"></div>
+    <div class="form-group"><label class="form-label">Moneda</label>
+      <select class="form-sel" id="fv-moneda" onchange="toggleTC('fv')">
+        <option value="ARS"${f?.moneda==='ARS'?' selected':''}>ARS - Pesos</option>
+        <option value="USD"${f?.moneda==='USD'?' selected':''}>USD - Dólares</option>
+      </select>
+    </div>
+    <div class="form-group" id="fv-tc-row" style="${f?.moneda==='USD'?'':'display:none'}"><label class="form-label">Tipo de Cambio</label><input class="form-inp" id="fv-tc" type="number" step="0.01" value="${f?.tipo_cambio||1}" placeholder="1400.00"></div>
+    <div class="form-group full"><label class="form-label">Cliente *</label>
+      <select class="form-sel" id="fv-cliente"><option value="">— Seleccionar cliente —</option>${cliOpts}</select>
+    </div>
+    <hr class="form-divider">
+    <div class="form-section-title">Importes</div>
+    <div class="form-group"><label class="form-label">Neto Gravado</label><input class="form-inp" id="fv-neto" type="number" step="0.01" value="${f?.neto_gravado||0}" oninput="calcTotalFV()"></div>
+    <div class="form-group"><label class="form-label">Neto No Gravado</label><input class="form-inp" id="fv-neto-ng" type="number" step="0.01" value="${f?.neto_no_gravado||0}" oninput="calcTotalFV()"></div>
+    <div class="form-group"><label class="form-label">IVA 21%</label><input class="form-inp" id="fv-iva21" type="number" step="0.01" value="${f?.iva_21||0}" oninput="calcTotalFV()"></div>
+    <div class="form-group"><label class="form-label">IVA 10.5%</label><input class="form-inp" id="fv-iva105" type="number" step="0.01" value="${f?.iva_105||0}" oninput="calcTotalFV()"></div>
+    <div class="form-group"><label class="form-label">Otros Tributos</label><input class="form-inp" id="fv-otros" type="number" step="0.01" value="${f?.otros_tributos||0}" oninput="calcTotalFV()"></div>
+    <div class="form-group"><label class="form-label">Total</label><input class="form-inp" id="fv-total" type="number" step="0.01" value="${f?.total||0}" style="font-weight:600;color:var(--accent)"></div>
+    <div class="form-group full"><label class="form-label">Estado</label>
+      <select class="form-sel" id="fv-estado">
+        ${['pendiente','cobrada','parcial','anulada'].map(e=>`<option value="${e}"${f?.estado===e?' selected':''}>${e.charAt(0).toUpperCase()+e.slice(1)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group full"><label class="form-label">Concepto</label><textarea class="form-textarea" id="fv-concepto">${escH(f?.concepto||'')}</textarea></div>
+  </div>`;
+}
+
+function calcTotalFV(){
+  const neto = parseFloat(q('fv-neto')?.value)||0;
+  const netoNG = parseFloat(q('fv-neto-ng')?.value)||0;
+  const iva21 = parseFloat(q('fv-iva21')?.value)||0;
+  const iva105 = parseFloat(q('fv-iva105')?.value)||0;
+  const otros = parseFloat(q('fv-otros')?.value)||0;
+  const t = q('fv-total'); if(t) t.value=(neto+netoNG+iva21+iva105+otros).toFixed(2);
+}
+
+function toggleTC(prefix){
+  const sel = q(prefix+'-moneda');
+  const row = q(prefix+'-tc-row');
+  if(row) row.style.display = sel?.value==='USD'?'':'none';
+}
+
+function openModalFV(fId=null){
+  const f = fId ? fventas.find(x=>x.id===fId) : null;
+  openModal(fId?'Editar Factura de Venta':'Nueva Factura de Venta', fvForm(f),
+    `<button class="btn" onclick="closeModal()">Cancelar</button>
+     <button class="btn primary" id="save-fv-btn" onclick="saveFV('${fId||''}')">Guardar</button>`
+  );
+}
+
+function editFV(id){ openModalFV(id) }
+
+async function saveFV(fId){
+  const numero = q('fv-numero').value.trim();
+  const clienteId = q('fv-cliente').value;
+  if(!numero){ showToast('Ingresá el número de factura','warn'); return }
+  if(!clienteId){ showToast('Seleccioná un cliente','warn'); return }
+  const btn = q('save-fv-btn'); btn.disabled=true; btn.textContent='Guardando...';
+  const data = {
+    numero, tipo:q('fv-tipo').value, fecha:q('fv-fecha').value,
+    cliente_id:clienteId, moneda:q('fv-moneda').value,
+    tipo_cambio:parseFloat(q('fv-tc')?.value)||1,
+    neto_gravado:parseFloat(q('fv-neto').value)||0,
+    neto_no_gravado:parseFloat(q('fv-neto-ng').value)||0,
+    iva_21:parseFloat(q('fv-iva21').value)||0,
+    iva_105:parseFloat(q('fv-iva105').value)||0,
+    otros_tributos:parseFloat(q('fv-otros').value)||0,
+    total:parseFloat(q('fv-total').value)||0,
+    estado:q('fv-estado').value,
+    concepto:q('fv-concepto').value.trim()||null,
+  };
+  try{
+    if(fId){ await dbUpdate('facturas_venta',data,'id=eq.'+fId); const i=fventas.findIndex(x=>x.id===fId); if(i>=0) fventas[i]={...fventas[i],...data}; }
+    else{ const nf=await dbInsert('facturas_venta',data); fventas.unshift(nf); }
+    closeModal(); renderFVentas(); updateSidebar(); showToast('Factura guardada');
+    if(activeView==='dashboard') renderDashboard();
+  }catch(e){ showToast(e.message,'err') }
+  btn.disabled=false; btn.textContent='Guardar';
+}
+
+async function deleteFV(id){
+  if(!confirm('¿Eliminar esta factura?')) return;
+  try{ await dbDelete('facturas_venta','id=eq.'+id); fventas=fventas.filter(f=>f.id!==id); renderFVentas(); updateSidebar(); showToast('Factura eliminada'); }
+  catch(e){ showToast(e.message,'err') }
+}
+
+/* ══════════════════════════════════════════
+   FACTURAS COMPRA
+══════════════════════════════════════════ */
+function renderFCompras(){
+  const search = (q('fc-search')?.value||'').toLowerCase();
+  const filtered = fcompras.filter(f=>{
+    if(!search) return true;
+    const pr = proveedores.find(p=>p.id===f.proveedor_id);
+    return f.numero?.toLowerCase().includes(search)||pr?.razon_social?.toLowerCase().includes(search);
+  });
+  q('fcompras-tbody').innerHTML = filtered.map(f=>{
+    const pr = proveedores.find(p=>p.id===f.proveedor_id);
+    const iva = (f.iva_21||0)+(f.iva_105||0);
+    return `<tr>
+      <td class="td-mono">${escH(f.numero)}</td>
+      <td><span class="badge badge-gray">${f.tipo}</span></td>
+      <td class="td-mono">${fmtDate(f.fecha)}</td>
+      <td>${escH(pr?.razon_social||'—')}</td>
+      <td class="td-mono">${fmtMoney(f.neto_gravado,f.moneda)}</td>
+      <td class="td-mono">${fmtMoney(iva,f.moneda)}</td>
+      <td class="td-mono" style="color:var(--text)">${fmtMoney(f.total,f.moneda)}</td>
+      <td><span class="badge ${f.moneda==='USD'?'badge-green':'badge-gray'}">${f.moneda}</span></td>
+      <td>${estadoBadge(f.estado)}</td>
+      <td><div class="td-actions">
+        <div class="act-btn" onclick="editFC('${f.id}')" title="Editar">✏️</div>
+        <div class="act-btn" onclick="openModalPago('${f.id}')" title="Registrar pago">💸</div>
+        <div class="act-btn danger" onclick="deleteFC('${f.id}')" title="Eliminar">✕</div>
+      </div></td>
+    </tr>`;
+  }).join('') || emptyRow(10);
+}
+
+function fcForm(f=null){
+  const provOpts = proveedores.map(p=>`<option value="${p.id}"${f?.proveedor_id===p.id?' selected':''}>${escH(p.razon_social)}</option>`).join('');
+  return `<div class="form-grid">
+    <div class="form-group"><label class="form-label">N° Factura *</label><input class="form-inp" id="fc-numero" type="text" placeholder="0001-00000001" value="${escH(f?.numero||'')}"></div>
+    <div class="form-group"><label class="form-label">Tipo *</label>
+      <select class="form-sel" id="fc-tipo">
+        ${['A','B','C','NC_A','NC_B'].map(t=>`<option value="${t}"${f?.tipo===t?' selected':''}>${t.replace('_',' ')}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Fecha *</label><input class="form-inp" id="fc-fecha" type="date" value="${f?.fecha||localDate()}"></div>
+    <div class="form-group"><label class="form-label">Moneda</label>
+      <select class="form-sel" id="fc-moneda" onchange="toggleTC('fc')">
+        <option value="ARS"${f?.moneda==='ARS'?' selected':''}>ARS - Pesos</option>
+        <option value="USD"${f?.moneda==='USD'?' selected':''}>USD - Dólares</option>
+      </select>
+    </div>
+    <div class="form-group" id="fc-tc-row" style="${f?.moneda==='USD'?'':'display:none'}"><label class="form-label">Tipo de Cambio</label><input class="form-inp" id="fc-tc" type="number" step="0.01" value="${f?.tipo_cambio||1}" placeholder="1400.00"></div>
+    <div class="form-group full"><label class="form-label">Proveedor *</label>
+      <select class="form-sel" id="fc-proveedor"><option value="">— Seleccionar proveedor —</option>${provOpts}</select>
+    </div>
+    <hr class="form-divider">
+    <div class="form-section-title">Importes</div>
+    <div class="form-group"><label class="form-label">Neto Gravado</label><input class="form-inp" id="fc-neto" type="number" step="0.01" value="${f?.neto_gravado||0}" oninput="calcTotalFC()"></div>
+    <div class="form-group"><label class="form-label">Neto No Gravado</label><input class="form-inp" id="fc-neto-ng" type="number" step="0.01" value="${f?.neto_no_gravado||0}" oninput="calcTotalFC()"></div>
+    <div class="form-group"><label class="form-label">IVA 21%</label><input class="form-inp" id="fc-iva21" type="number" step="0.01" value="${f?.iva_21||0}" oninput="calcTotalFC()"></div>
+    <div class="form-group"><label class="form-label">IVA 10.5%</label><input class="form-inp" id="fc-iva105" type="number" step="0.01" value="${f?.iva_105||0}" oninput="calcTotalFC()"></div>
+    <div class="form-group"><label class="form-label">Otros Tributos</label><input class="form-inp" id="fc-otros" type="number" step="0.01" value="${f?.otros_tributos||0}" oninput="calcTotalFC()"></div>
+    <div class="form-group"><label class="form-label">Total</label><input class="form-inp" id="fc-total" type="number" step="0.01" value="${f?.total||0}" style="font-weight:600;color:var(--accent)"></div>
+    <div class="form-group full"><label class="form-label">Estado</label>
+      <select class="form-sel" id="fc-estado">
+        ${['pendiente','pagada','parcial','anulada'].map(e=>`<option value="${e}"${f?.estado===e?' selected':''}>${e.charAt(0).toUpperCase()+e.slice(1)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group full"><label class="form-label">Concepto</label><textarea class="form-textarea" id="fc-concepto">${escH(f?.concepto||'')}</textarea></div>
+  </div>`;
+}
+
+function calcTotalFC(){
+  const neto=parseFloat(q('fc-neto')?.value)||0, netoNG=parseFloat(q('fc-neto-ng')?.value)||0;
+  const iva21=parseFloat(q('fc-iva21')?.value)||0, iva105=parseFloat(q('fc-iva105')?.value)||0;
+  const otros=parseFloat(q('fc-otros')?.value)||0;
+  const t=q('fc-total'); if(t) t.value=(neto+netoNG+iva21+iva105+otros).toFixed(2);
+}
+
+function openModalFC(fId=null){ const f=fId?fcompras.find(x=>x.id===fId):null; openModal(fId?'Editar Factura de Compra':'Nueva Factura de Compra',fcForm(f),`<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" id="save-fc-btn" onclick="saveFC('${fId||''}')">Guardar</button>`); }
+function editFC(id){ openModalFC(id) }
+
+async function saveFC(fId){
+  const numero=q('fc-numero').value.trim(), provId=q('fc-proveedor').value;
+  if(!numero){showToast('Ingresá el número','warn');return}
+  if(!provId){showToast('Seleccioná un proveedor','warn');return}
+  const btn=q('save-fc-btn'); btn.disabled=true; btn.textContent='Guardando...';
+  const data={numero,tipo:q('fc-tipo').value,fecha:q('fc-fecha').value,proveedor_id:provId,moneda:q('fc-moneda').value,tipo_cambio:parseFloat(q('fc-tc')?.value)||1,neto_gravado:parseFloat(q('fc-neto').value)||0,neto_no_gravado:parseFloat(q('fc-neto-ng').value)||0,iva_21:parseFloat(q('fc-iva21').value)||0,iva_105:parseFloat(q('fc-iva105').value)||0,otros_tributos:parseFloat(q('fc-otros').value)||0,total:parseFloat(q('fc-total').value)||0,estado:q('fc-estado').value,concepto:q('fc-concepto').value.trim()||null};
+  try{
+    if(fId){await dbUpdate('facturas_compra',data,'id=eq.'+fId);const i=fcompras.findIndex(x=>x.id===fId);if(i>=0)fcompras[i]={...fcompras[i],...data};}
+    else{const nf=await dbInsert('facturas_compra',data);fcompras.unshift(nf);}
+    closeModal();renderFCompras();updateSidebar();showToast('Factura guardada');
+    if(activeView==='dashboard')renderDashboard();
+  }catch(e){showToast(e.message,'err')}
+  btn.disabled=false;btn.textContent='Guardar';
+}
+
+async function deleteFC(id){
+  if(!confirm('¿Eliminar esta factura?'))return;
+  try{await dbDelete('facturas_compra','id=eq.'+id);fcompras=fcompras.filter(f=>f.id!==id);renderFCompras();updateSidebar();showToast('Factura eliminada');}
+  catch(e){showToast(e.message,'err')}
+}
+
+/* ══════════════════════════════════════════
+   COBROS
+══════════════════════════════════════════ */
+function renderCobros(){
+  const search=(q('co-search')?.value||'').toLowerCase();
+  const filtered=cobros.filter(c=>{
+    if(!search)return true;
+    const cl=clientes.find(x=>x.id===c.cliente_id);
+    return cl?.razon_social?.toLowerCase().includes(search)||c.referencia?.toLowerCase().includes(search);
+  });
+  q('cobros-tbody').innerHTML=filtered.map(c=>{
+    const cl=clientes.find(x=>x.id===c.cliente_id);
+    const fv=fventas.find(x=>x.id===c.factura_id);
+    return `<tr>
+      <td class="td-mono">${fmtDate(c.fecha)}</td>
+      <td>${escH(cl?.razon_social||'—')}</td>
+      <td class="td-mono">${fv?escH(fv.numero):'—'}</td>
+      <td>${medioLabel(c.medio_pago)}</td>
+      <td class="td-mono" style="color:var(--green)">${fmtMoney(c.importe,c.moneda)}</td>
+      <td><span class="badge ${c.moneda==='USD'?'badge-green':'badge-gray'}">${c.moneda}</span></td>
+      <td style="color:var(--text3)">${escH(c.referencia||'—')}</td>
+      <td><div class="td-actions">
+        <div class="act-btn danger" onclick="deleteCobro('${c.id}')">✕</div>
+      </div></td>
+    </tr>`;
+  }).join('')||emptyRow(8);
+}
+
+function cobroForm(fvId=null){
+  const fvSel = fvId ? fventas.find(x=>x.id===fvId) : null;
+  const cliOpts=clientes.map(c=>`<option value="${c.id}"${fvSel?.cliente_id===c.id?' selected':''}>${escH(c.razon_social)}</option>`).join('');
+  const fvOpts=fventas.filter(f=>f.estado!=='cobrada'&&f.estado!=='anulada').map(f=>{
+    const cl=clientes.find(c=>c.id===f.cliente_id);
+    return `<option value="${f.id}"${f.id===fvId?' selected':''}>${escH(f.numero)} - ${escH(cl?.razon_social||'')} - ${fmtMoney(f.total,f.moneda)}</option>`;
+  }).join('');
+  return `<div class="form-grid">
+    <div class="form-group"><label class="form-label">Fecha *</label><input class="form-inp" id="co-fecha" type="date" value="${localDate()}"></div>
+    <div class="form-group"><label class="form-label">Importe *</label><input class="form-inp" id="co-importe" type="number" step="0.01" placeholder="0.00" value="${fvSel?.total||''}"></div>
+    <div class="form-group"><label class="form-label">Moneda</label>
+      <select class="form-sel" id="co-moneda" onchange="toggleTC('co')">
+        <option value="ARS">ARS - Pesos</option>
+        <option value="USD"${fvSel?.moneda==='USD'?' selected':''}>USD - Dólares</option>
+      </select>
+    </div>
+    <div class="form-group" id="co-tc-row" style="${fvSel?.moneda==='USD'?'':'display:none'}"><label class="form-label">Tipo de Cambio</label><input class="form-inp" id="co-tc" type="number" step="0.01" value="1" placeholder="1400.00"></div>
+    <div class="form-group full"><label class="form-label">Cliente</label>
+      <select class="form-sel" id="co-cliente"><option value="">— Seleccionar —</option>${cliOpts}</select>
+    </div>
+    <div class="form-group full"><label class="form-label">Factura asociada</label>
+      <select class="form-sel" id="co-factura"><option value="">— Sin factura específica —</option>${fvOpts}</select>
+    </div>
+    <div class="form-group full"><label class="form-label">Medio de Pago</label>
+      <select class="form-sel" id="co-medio">
+        <option value="transferencia">Transferencia</option><option value="cheque">Cheque</option>
+        <option value="efectivo">Efectivo</option><option value="tarjeta">Tarjeta</option><option value="otro">Otro</option>
+      </select>
+    </div>
+    <div class="form-group full"><label class="form-label">Referencia / N° operación</label><input class="form-inp" id="co-ref" type="text" placeholder="N° transferencia, cheque, etc."></div>
+    <div class="form-group full"><label class="form-label">Notas</label><textarea class="form-textarea" id="co-notas"></textarea></div>
+  </div>`;
+}
+
+function openModalCobro(fvId=null){ openModal('Nuevo Cobro',cobroForm(fvId),`<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" id="save-co-btn" onclick="saveCobro()">Guardar Cobro</button>`); }
+
+async function saveCobro(){
+  const importe=parseFloat(q('co-importe').value);
+  if(!importe||importe<=0){showToast('Ingresá el importe','warn');return}
+  const btn=q('save-co-btn');btn.disabled=true;btn.textContent='Guardando...';
+  const facturaId=q('co-factura').value||null;
+  const clienteId=q('co-cliente').value||null;
+  const data={fecha:q('co-fecha').value,cliente_id:clienteId||undefined,factura_id:facturaId||undefined,medio_pago:q('co-medio').value,moneda:q('co-moneda').value,tipo_cambio:parseFloat(q('co-tc')?.value)||1,importe,referencia:q('co-ref').value.trim()||null,notas:q('co-notas').value.trim()||null};
+  // Remove undefined keys
+  Object.keys(data).forEach(k=>data[k]===undefined&&delete data[k]);
+  try{
+    const nc=await dbInsert('cobros',data);cobros.unshift(nc);
+    // Mark factura as cobrada if full amount
+    if(facturaId){
+      const fv=fventas.find(x=>x.id===facturaId);
+      if(fv){
+        const totalCobrado=cobros.filter(c=>c.factura_id===facturaId).reduce((s,c)=>s+c.importe,0);
+        const newEstado=totalCobrado>=fv.total?'cobrada':'parcial';
+        await dbUpdate('facturas_venta',{estado:newEstado},'id=eq.'+facturaId);
+        const i=fventas.findIndex(x=>x.id===facturaId);if(i>=0)fventas[i].estado=newEstado;
+      }
+    }
+    closeModal();renderCobros();updateSidebar();showToast('Cobro registrado');
+    if(activeView==='dashboard')renderDashboard();
+    if(activeView==='fventas')renderFVentas();
+  }catch(e){showToast(e.message,'err')}
+  btn.disabled=false;btn.textContent='Guardar Cobro';
+}
+
+async function deleteCobro(id){
+  if(!confirm('¿Eliminar este cobro?'))return;
+  try{await dbDelete('cobros','id=eq.'+id);cobros=cobros.filter(c=>c.id!==id);renderCobros();updateSidebar();showToast('Cobro eliminado');}
+  catch(e){showToast(e.message,'err')}
+}
+
+/* ══════════════════════════════════════════
+   PAGOS
+══════════════════════════════════════════ */
+function renderPagos(){
+  const search=(q('pa-search')?.value||'').toLowerCase();
+  const filtered=pagos.filter(p=>{
+    if(!search)return true;
+    const pr=proveedores.find(x=>x.id===p.proveedor_id);
+    return pr?.razon_social?.toLowerCase().includes(search)||p.referencia?.toLowerCase().includes(search);
+  });
+  q('pagos-tbody').innerHTML=filtered.map(p=>{
+    const pr=proveedores.find(x=>x.id===p.proveedor_id);
+    const fc=fcompras.find(x=>x.id===p.factura_id);
+    return `<tr>
+      <td class="td-mono">${fmtDate(p.fecha)}</td>
+      <td>${escH(pr?.razon_social||'—')}</td>
+      <td class="td-mono">${fc?escH(fc.numero):'—'}</td>
+      <td>${medioLabel(p.medio_pago)}</td>
+      <td class="td-mono" style="color:var(--red)">${fmtMoney(p.importe,p.moneda)}</td>
+      <td><span class="badge ${p.moneda==='USD'?'badge-green':'badge-gray'}">${p.moneda}</span></td>
+      <td style="color:var(--text3)">${escH(p.referencia||'—')}</td>
+      <td><div class="td-actions"><div class="act-btn danger" onclick="deletePago('${p.id}')">✕</div></div></td>
+    </tr>`;
+  }).join('')||emptyRow(8);
+}
+
+function pagoForm(fcId=null){
+  const fcSel=fcId?fcompras.find(x=>x.id===fcId):null;
+  const provOpts=proveedores.map(p=>`<option value="${p.id}"${fcSel?.proveedor_id===p.id?' selected':''}>${escH(p.razon_social)}</option>`).join('');
+  const fcOpts=fcompras.filter(f=>f.estado!=='pagada'&&f.estado!=='anulada').map(f=>{
+    const pr=proveedores.find(p=>p.id===f.proveedor_id);
+    return `<option value="${f.id}"${f.id===fcId?' selected':''}>${escH(f.numero)} - ${escH(pr?.razon_social||'')} - ${fmtMoney(f.total,f.moneda)}</option>`;
+  }).join('');
+  return `<div class="form-grid">
+    <div class="form-group"><label class="form-label">Fecha *</label><input class="form-inp" id="pa-fecha" type="date" value="${localDate()}"></div>
+    <div class="form-group"><label class="form-label">Importe *</label><input class="form-inp" id="pa-importe" type="number" step="0.01" placeholder="0.00" value="${fcSel?.total||''}"></div>
+    <div class="form-group"><label class="form-label">Moneda</label>
+      <select class="form-sel" id="pa-moneda" onchange="toggleTC('pa')">
+        <option value="ARS">ARS - Pesos</option>
+        <option value="USD"${fcSel?.moneda==='USD'?' selected':''}>USD - Dólares</option>
+      </select>
+    </div>
+    <div class="form-group" id="pa-tc-row" style="${fcSel?.moneda==='USD'?'':'display:none'}"><label class="form-label">Tipo de Cambio</label><input class="form-inp" id="pa-tc" type="number" step="0.01" value="1" placeholder="1400.00"></div>
+    <div class="form-group full"><label class="form-label">Proveedor</label>
+      <select class="form-sel" id="pa-proveedor"><option value="">— Seleccionar —</option>${provOpts}</select>
+    </div>
+    <div class="form-group full"><label class="form-label">Factura asociada</label>
+      <select class="form-sel" id="pa-factura"><option value="">— Sin factura específica —</option>${fcOpts}</select>
+    </div>
+    <div class="form-group full"><label class="form-label">Medio de Pago</label>
+      <select class="form-sel" id="pa-medio">
+        <option value="transferencia">Transferencia</option><option value="cheque">Cheque</option>
+        <option value="efectivo">Efectivo</option><option value="tarjeta">Tarjeta</option><option value="otro">Otro</option>
+      </select>
+    </div>
+    <div class="form-group full"><label class="form-label">Referencia</label><input class="form-inp" id="pa-ref" type="text" placeholder="N° transferencia, cheque, etc."></div>
+    <div class="form-group full"><label class="form-label">Notas</label><textarea class="form-textarea" id="pa-notas"></textarea></div>
+  </div>`;
+}
+
+function openModalPago(fcId=null){ openModal('Nuevo Pago',pagoForm(fcId),`<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" id="save-pa-btn" onclick="savePago()">Guardar Pago</button>`); }
+
+async function savePago(){
+  const importe=parseFloat(q('pa-importe').value);
+  if(!importe||importe<=0){showToast('Ingresá el importe','warn');return}
+  const btn=q('save-pa-btn');btn.disabled=true;btn.textContent='Guardando...';
+  const facturaId=q('pa-factura').value||null;
+  const proveedorId=q('pa-proveedor').value||null;
+  const data={fecha:q('pa-fecha').value,proveedor_id:proveedorId||undefined,factura_id:facturaId||undefined,medio_pago:q('pa-medio').value,moneda:q('pa-moneda').value,tipo_cambio:parseFloat(q('pa-tc')?.value)||1,importe,referencia:q('pa-ref').value.trim()||null,notas:q('pa-notas').value.trim()||null};
+  Object.keys(data).forEach(k=>data[k]===undefined&&delete data[k]);
+  try{
+    const np=await dbInsert('pagos',data);pagos.unshift(np);
+    if(facturaId){
+      const fc=fcompras.find(x=>x.id===facturaId);
+      if(fc){
+        const totalPagado=pagos.filter(p=>p.factura_id===facturaId).reduce((s,p)=>s+p.importe,0);
+        const newEstado=totalPagado>=fc.total?'pagada':'parcial';
+        await dbUpdate('facturas_compra',{estado:newEstado},'id=eq.'+facturaId);
+        const i=fcompras.findIndex(x=>x.id===facturaId);if(i>=0)fcompras[i].estado=newEstado;
+      }
+    }
+    closeModal();renderPagos();updateSidebar();showToast('Pago registrado');
+    if(activeView==='dashboard')renderDashboard();
+    if(activeView==='fcompras')renderFCompras();
+  }catch(e){showToast(e.message,'err')}
+  btn.disabled=false;btn.textContent='Guardar Pago';
+}
+
+async function deletePago(id){
+  if(!confirm('¿Eliminar este pago?'))return;
+  try{await dbDelete('pagos','id=eq.'+id);pagos=pagos.filter(p=>p.id!==id);renderPagos();updateSidebar();showToast('Pago eliminado');}
+  catch(e){showToast(e.message,'err')}
+}
+
+/* ══════════════════════════════════════════
+   CLIENTES
+══════════════════════════════════════════ */
+function renderClientes(){
+  const search=(q('cl-search')?.value||'').toLowerCase();
+  const filtered=clientes.filter(c=>!search||c.razon_social?.toLowerCase().includes(search)||c.cuit?.includes(search));
+  q('clientes-tbody').innerHTML=filtered.map(c=>{
+    const totalFact=fventas.filter(f=>f.cliente_id===c.id&&f.estado!=='anulada').reduce((s,f)=>s+(f.total||0),0);
+    const totalCobr=cobros.filter(x=>x.cliente_id===c.id).reduce((s,x)=>s+(x.importe||0),0);
+    const saldo=totalFact-totalCobr;
+    return `<tr>
+      <td>${escH(c.razon_social)}</td>
+      <td class="td-mono">${escH(c.cuit||'—')}</td>
+      <td>${condIVALabel(c.condicion_iva)}</td>
+      <td style="color:var(--text3)">${escH(c.email||'—')}</td>
+      <td style="color:var(--text3)">${escH(c.telefono||'—')}</td>
+      <td class="td-mono" style="color:${saldo>0?'var(--amber)':'var(--text3)'}">${fmtMoney(saldo)}</td>
+      <td><div class="td-actions">
+        <div class="act-btn" onclick="editCliente('${c.id}')">✏️</div>
+        <div class="act-btn danger" onclick="deleteCliente('${c.id}')">✕</div>
+      </div></td>
+    </tr>`;
+  }).join('')||emptyRow(7);
+}
+
+function clienteForm(c=null){
+  return `<div class="form-grid">
+    <div class="form-group full"><label class="form-label">Razón Social *</label><input class="form-inp" id="cl-razon" type="text" value="${escH(c?.razon_social||'')}"></div>
+    <div class="form-group"><label class="form-label">CUIT</label><input class="form-inp" id="cl-cuit" type="text" placeholder="20-12345678-9" value="${escH(c?.cuit||'')}"></div>
+    <div class="form-group"><label class="form-label">Condición IVA</label>
+      <select class="form-sel" id="cl-iva">
+        ${[['RI','Resp. Inscripto'],['MO','Monotributista'],['EX','Exento'],['CF','Cons. Final']].map(([v,l])=>`<option value="${v}"${c?.condicion_iva===v?' selected':''}>${l}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Email</label><input class="form-inp" id="cl-email" type="email" value="${escH(c?.email||'')}"></div>
+    <div class="form-group"><label class="form-label">Teléfono</label><input class="form-inp" id="cl-tel" type="tel" value="${escH(c?.telefono||'')}"></div>
+    <div class="form-group full"><label class="form-label">Dirección</label><input class="form-inp" id="cl-dir" type="text" value="${escH(c?.direccion||'')}"></div>
+    <div class="form-group full"><label class="form-label">Notas</label><textarea class="form-textarea" id="cl-notas">${escH(c?.notas||'')}</textarea></div>
+  </div>`;
+}
+
+function openModalCliente(cId=null){ const c=cId?clientes.find(x=>x.id===cId):null; openModal(cId?'Editar Cliente':'Nuevo Cliente',clienteForm(c),`<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" id="save-cl-btn" onclick="saveCliente('${cId||''}')">Guardar</button>`); }
+function editCliente(id){ openModalCliente(id) }
+
+async function saveCliente(cId){
+  const razon=q('cl-razon').value.trim();
+  if(!razon){showToast('Ingresá la razón social','warn');return}
+  const btn=q('save-cl-btn');btn.disabled=true;btn.textContent='Guardando...';
+  const data={razon_social:razon,cuit:q('cl-cuit').value.trim()||null,condicion_iva:q('cl-iva').value,email:q('cl-email').value.trim()||null,telefono:q('cl-tel').value.trim()||null,direccion:q('cl-dir').value.trim()||null,notas:q('cl-notas').value.trim()||null};
+  try{
+    if(cId){await dbUpdate('clientes',data,'id=eq.'+cId);const i=clientes.findIndex(x=>x.id===cId);if(i>=0)clientes[i]={...clientes[i],...data};}
+    else{const nc=await dbInsert('clientes',data);clientes.push(nc);clientes.sort((a,b)=>a.razon_social.localeCompare(b.razon_social));}
+    closeModal();renderClientes();showToast('Cliente guardado');
+  }catch(e){showToast(e.message,'err')}
+  btn.disabled=false;btn.textContent='Guardar';
+}
+
+async function deleteCliente(id){
+  if(!confirm('¿Eliminar este cliente?'))return;
+  try{await dbDelete('clientes','id=eq.'+id);clientes=clientes.filter(c=>c.id!==id);renderClientes();showToast('Cliente eliminado');}
+  catch(e){showToast(e.message,'err')}
+}
+
+/* ══════════════════════════════════════════
+   PROVEEDORES
+══════════════════════════════════════════ */
+function renderProveedores(){
+  const search=(q('pr-search')?.value||'').toLowerCase();
+  const filtered=proveedores.filter(p=>!search||p.razon_social?.toLowerCase().includes(search)||p.cuit?.includes(search));
+  q('proveedores-tbody').innerHTML=filtered.map(p=>{
+    const totalFact=fcompras.filter(f=>f.proveedor_id===p.id&&f.estado!=='anulada').reduce((s,f)=>s+(f.total||0),0);
+    const totalPag=pagos.filter(x=>x.proveedor_id===p.id).reduce((s,x)=>s+(x.importe||0),0);
+    const saldo=totalFact-totalPag;
+    return `<tr>
+      <td>${escH(p.razon_social)}</td>
+      <td class="td-mono">${escH(p.cuit||'—')}</td>
+      <td>${condIVALabel(p.condicion_iva)}</td>
+      <td style="color:var(--text3)">${escH(p.email||'—')}</td>
+      <td style="color:var(--text3)">${escH(p.telefono||'—')}</td>
+      <td class="td-mono" style="color:${saldo>0?'var(--red)':'var(--text3)'}">${fmtMoney(saldo)}</td>
+      <td><div class="td-actions">
+        <div class="act-btn" onclick="editProveedor('${p.id}')">✏️</div>
+        <div class="act-btn danger" onclick="deleteProveedor('${p.id}')">✕</div>
+      </div></td>
+    </tr>`;
+  }).join('')||emptyRow(7);
+}
+
+function proveedorForm(p=null){
+  return `<div class="form-grid">
+    <div class="form-group full"><label class="form-label">Razón Social *</label><input class="form-inp" id="pr-razon" type="text" value="${escH(p?.razon_social||'')}"></div>
+    <div class="form-group"><label class="form-label">CUIT</label><input class="form-inp" id="pr-cuit" type="text" placeholder="30-12345678-9" value="${escH(p?.cuit||'')}"></div>
+    <div class="form-group"><label class="form-label">Condición IVA</label>
+      <select class="form-sel" id="pr-iva">
+        ${[['RI','Resp. Inscripto'],['MO','Monotributista'],['EX','Exento']].map(([v,l])=>`<option value="${v}"${p?.condicion_iva===v?' selected':''}>${l}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Email</label><input class="form-inp" id="pr-email" type="email" value="${escH(p?.email||'')}"></div>
+    <div class="form-group"><label class="form-label">Teléfono</label><input class="form-inp" id="pr-tel" type="tel" value="${escH(p?.telefono||'')}"></div>
+    <div class="form-group full"><label class="form-label">Dirección</label><input class="form-inp" id="pr-dir" type="text" value="${escH(p?.direccion||'')}"></div>
+    <div class="form-group full"><label class="form-label">Notas</label><textarea class="form-textarea" id="pr-notas">${escH(p?.notas||'')}</textarea></div>
+  </div>`;
+}
+
+function openModalProveedor(pId=null){ const p=pId?proveedores.find(x=>x.id===pId):null; openModal(pId?'Editar Proveedor':'Nuevo Proveedor',proveedorForm(p),`<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" id="save-pr-btn" onclick="saveProveedor('${pId||''}')">Guardar</button>`); }
+function editProveedor(id){ openModalProveedor(id) }
+
+async function saveProveedor(pId){
+  const razon=q('pr-razon').value.trim();
+  if(!razon){showToast('Ingresá la razón social','warn');return}
+  const btn=q('save-pr-btn');btn.disabled=true;btn.textContent='Guardando...';
+  const data={razon_social:razon,cuit:q('pr-cuit').value.trim()||null,condicion_iva:q('pr-iva').value,email:q('pr-email').value.trim()||null,telefono:q('pr-tel').value.trim()||null,direccion:q('pr-dir').value.trim()||null,notas:q('pr-notas').value.trim()||null};
+  try{
+    if(pId){await dbUpdate('proveedores',data,'id=eq.'+pId);const i=proveedores.findIndex(x=>x.id===pId);if(i>=0)proveedores[i]={...proveedores[i],...data};}
+    else{const np=await dbInsert('proveedores',data);proveedores.push(np);proveedores.sort((a,b)=>a.razon_social.localeCompare(b.razon_social));}
+    closeModal();renderProveedores();showToast('Proveedor guardado');
+  }catch(e){showToast(e.message,'err')}
+  btn.disabled=false;btn.textContent='Guardar';
+}
+
+async function deleteProveedor(id){
+  if(!confirm('¿Eliminar este proveedor?'))return;
+  try{await dbDelete('proveedores','id=eq.'+id);proveedores=proveedores.filter(p=>p.id!==id);renderProveedores();showToast('Proveedor eliminado');}
+  catch(e){showToast(e.message,'err')}
+}
+
+/* ══════════════════════════════════════════
+   REPORTES
+══════════════════════════════════════════ */
+function initReporteFilters(){
+  const meses=[['01','Enero'],['02','Febrero'],['03','Marzo'],['04','Abril'],['05','Mayo'],['06','Junio'],['07','Julio'],['08','Agosto'],['09','Septiembre'],['10','Octubre'],['11','Noviembre'],['12','Diciembre']];
+  const now=new Date();
+  q('rep-mes').innerHTML=`<option value="">Todos los meses</option>`+meses.map(([v,l])=>`<option value="${v}"${v===String(now.getMonth()+1).padStart(2,'0')?' selected':''}>${l}</option>`).join('');
+  const years=new Set([...fventas,...fcompras].map(f=>f.fecha?.split('-')[0]).filter(Boolean));
+  const sortedYears=[...years].sort().reverse();
+  q('rep-anio').innerHTML=`<option value="">Todos los años</option>`+sortedYears.map(y=>`<option value="${y}"${y===String(now.getFullYear())?' selected':''}>${y}</option>`).join('');
+}
+
+function reportTab(el, name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  activeReport=name;
+  renderReporte();
+}
+
+function getFilteredDate(){
+  const mes=q('rep-mes')?.value;
+  const anio=q('rep-anio')?.value;
+  return {mes,anio};
+}
+
+function inPeriod(fecha, mes, anio){
+  if(!fecha) return false;
+  if(anio&&!fecha.startsWith(anio)) return false;
+  if(mes&&fecha.split('-')[1]!==mes) return false;
+  return true;
+}
+
+function renderReporte(){
+  const {mes,anio}=getFilteredDate();
+  const el=q('reporte-content');
+  if(activeReport==='saldos-clientes'){
+    const rows=clientes.map(c=>{
+      const fact=fventas.filter(f=>f.cliente_id===c.id&&f.estado!=='anulada'&&inPeriod(f.fecha,mes,anio));
+      const cobr=cobros.filter(x=>x.cliente_id===c.id&&inPeriod(x.fecha,mes,anio));
+      const totalFact=fact.reduce((s,f)=>s+(f.total||0),0);
+      const totalCobr=cobr.reduce((s,x)=>s+(x.importe||0),0);
+      return {name:c.razon_social,facturado:totalFact,cobrado:totalCobr,saldo:totalFact-totalCobr};
+    }).filter(r=>r.facturado>0||r.saldo!==0).sort((a,b)=>b.saldo-a.saldo);
+    el.innerHTML=`<div class="table-wrap"><table>
+      <thead><tr><th>Cliente</th><th>Facturado</th><th>Cobrado</th><th>Saldo Pendiente</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr>
+        <td>${escH(r.name)}</td>
+        <td class="td-mono">${fmtMoney(r.facturado)}</td>
+        <td class="td-mono" style="color:var(--green)">${fmtMoney(r.cobrado)}</td>
+        <td class="td-mono" style="color:${r.saldo>0?'var(--amber)':'var(--text3)'};font-weight:${r.saldo>0?600:400}">${fmtMoney(r.saldo)}</td>
+      </tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:20px">Sin datos para el período</td></tr>'}
+      </tbody>
+    </table>
+    <div style="padding:12px 14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:11px;color:var(--text3);font-family:var(--mono)">TOTAL PENDIENTE</span>
+      <span style="font-size:16px;font-weight:600;font-family:var(--mono);color:var(--amber)">${fmtMoney(rows.reduce((s,r)=>s+r.saldo,0))}</span>
+    </div></div>`;
+  } else if(activeReport==='saldos-proveedores'){
+    const rows=proveedores.map(p=>{
+      const fact=fcompras.filter(f=>f.proveedor_id===p.id&&f.estado!=='anulada'&&inPeriod(f.fecha,mes,anio));
+      const pag=pagos.filter(x=>x.proveedor_id===p.id&&inPeriod(x.fecha,mes,anio));
+      const totalFact=fact.reduce((s,f)=>s+(f.total||0),0);
+      const totalPag=pag.reduce((s,x)=>s+(x.importe||0),0);
+      return {name:p.razon_social,facturado:totalFact,pagado:totalPag,saldo:totalFact-totalPag};
+    }).filter(r=>r.facturado>0||r.saldo!==0).sort((a,b)=>b.saldo-a.saldo);
+    el.innerHTML=`<div class="table-wrap"><table>
+      <thead><tr><th>Proveedor</th><th>Facturado</th><th>Pagado</th><th>Saldo Pendiente</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr>
+        <td>${escH(r.name)}</td>
+        <td class="td-mono">${fmtMoney(r.facturado)}</td>
+        <td class="td-mono" style="color:var(--green)">${fmtMoney(r.pagado)}</td>
+        <td class="td-mono" style="color:${r.saldo>0?'var(--red)':'var(--text3)'}">${fmtMoney(r.saldo)}</td>
+      </tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:20px">Sin datos para el período</td></tr>'}
+      </tbody>
+    </table>
+    <div style="padding:12px 14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:11px;color:var(--text3);font-family:var(--mono)">TOTAL PENDIENTE</span>
+      <span style="font-size:16px;font-weight:600;font-family:var(--mono);color:var(--red)">${fmtMoney(rows.reduce((s,r)=>s+r.saldo,0))}</span>
+    </div></div>`;
+  } else if(activeReport==='flujo-caja'){
+    const cobFilt=cobros.filter(c=>inPeriod(c.fecha,mes,anio));
+    const pagFilt=pagos.filter(p=>inPeriod(p.fecha,mes,anio));
+    const totalCob=cobFilt.reduce((s,c)=>s+(c.importe||0),0);
+    const totalPag=pagFilt.reduce((s,p)=>s+(p.importe||0),0);
+    const neto=totalCob-totalPag;
+    el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">
+      <div class="stat-card green"><div class="stat-label">Total Cobrado</div><div class="stat-val">$${fmtNum(totalCob)}</div><div class="stat-sub">${cobFilt.length} cobros</div></div>
+      <div class="stat-card red"><div class="stat-label">Total Pagado</div><div class="stat-val">$${fmtNum(totalPag)}</div><div class="stat-sub">${pagFilt.length} pagos</div></div>
+      <div class="stat-card ${neto>=0?'green':'red'}"><div class="stat-label">Resultado Neto</div><div class="stat-val">$${fmtNum(Math.abs(neto))}</div><div class="stat-sub">${neto>=0?'Superávit':'Déficit'}</div></div>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Fecha</th><th>Tipo</th><th>Contraparte</th><th>Medio</th><th>Importe</th><th>Moneda</th></tr></thead>
+      <tbody>${[...cobFilt.map(c=>{const cl=clientes.find(x=>x.id===c.cliente_id);return{fecha:c.fecha,tipo:'Cobro',name:cl?.razon_social||'—',medio:medioLabel(c.medio_pago),importe:c.importe,moneda:c.moneda,color:'var(--green)'}}),...pagFilt.map(p=>{const pr=proveedores.find(x=>x.id===p.proveedor_id);return{fecha:p.fecha,tipo:'Pago',name:pr?.razon_social||'—',medio:medioLabel(p.medio_pago),importe:p.importe,moneda:p.moneda,color:'var(--red)'}})].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(r=>`<tr>
+        <td class="td-mono">${fmtDate(r.fecha)}</td>
+        <td><span class="badge ${r.tipo==='Cobro'?'badge-green':'badge-red'}">${r.tipo}</span></td>
+        <td>${escH(r.name)}</td>
+        <td>${r.medio}</td>
+        <td class="td-mono" style="color:${r.color}">${fmtMoney(r.importe,r.moneda)}</td>
+        <td><span class="badge ${r.moneda==='USD'?'badge-green':'badge-gray'}">${r.moneda}</span></td>
+      </tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">Sin movimientos</td></tr>'}
+      </tbody>
+    </table></div>`;
+  } else if(activeReport==='iva-ventas'){
+    const fact=fventas.filter(f=>f.estado!=='anulada'&&inPeriod(f.fecha,mes,anio));
+    const totalNeto=fact.reduce((s,f)=>s+(f.neto_gravado||0),0);
+    const totalIVA21=fact.reduce((s,f)=>s+(f.iva_21||0),0);
+    const totalIVA105=fact.reduce((s,f)=>s+(f.iva_105||0),0);
+    const totalNetoNG=fact.reduce((s,f)=>s+(f.neto_no_gravado||0),0);
+    el.innerHTML=`<div class="table-wrap" style="margin-bottom:16px">
+      <div class="table-head"><div class="table-title">Libro IVA Ventas</div></div>
+      <table>
+        <thead><tr><th>Fecha</th><th>N° Factura</th><th>Tipo</th><th>Cliente</th><th>Neto Grav.</th><th>Neto No Grav.</th><th>IVA 21%</th><th>IVA 10.5%</th><th>Total</th></tr></thead>
+        <tbody>${fact.map(f=>{const cl=clientes.find(c=>c.id===f.cliente_id);return`<tr>
+          <td class="td-mono">${fmtDate(f.fecha)}</td>
+          <td class="td-mono">${escH(f.numero)}</td>
+          <td><span class="badge badge-gray">${f.tipo}</span></td>
+          <td>${escH(cl?.razon_social||'—')}</td>
+          <td class="td-mono">${fmtMoney(f.neto_gravado,f.moneda)}</td>
+          <td class="td-mono">${fmtMoney(f.neto_no_gravado,f.moneda)}</td>
+          <td class="td-mono">${fmtMoney(f.iva_21,f.moneda)}</td>
+          <td class="td-mono">${fmtMoney(f.iva_105,f.moneda)}</td>
+          <td class="td-mono" style="color:var(--text)">${fmtMoney(f.total,f.moneda)}</td>
+        </tr>`}).join('')||'<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:20px">Sin datos</td></tr>'}
+        </tbody>
+      </table>
+      <div style="padding:12px 14px;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        ${[['Neto Gravado',totalNeto,'var(--text)'],['IVA 21%',totalIVA21,'var(--accent)'],['IVA 10.5%',totalIVA105,'var(--blue)'],['Total IVA',totalIVA21+totalIVA105,'var(--green)']].map(([l,v,c])=>`<div><div style="font-size:9px;color:var(--text3);font-family:var(--mono);margin-bottom:3px">${l}</div><div style="font-size:15px;font-weight:600;font-family:var(--mono);color:${c}">${fmtMoney(v)}</div></div>`).join('')}
+      </div>
+    </div>`;
+  } else if(activeReport==='iva-compras'){
+    const fact=fcompras.filter(f=>f.estado!=='anulada'&&inPeriod(f.fecha,mes,anio));
+    const totalNeto=fact.reduce((s,f)=>s+(f.neto_gravado||0),0);
+    const totalIVA21=fact.reduce((s,f)=>s+(f.iva_21||0),0);
+    const totalIVA105=fact.reduce((s,f)=>s+(f.iva_105||0),0);
+    el.innerHTML=`<div class="table-wrap">
+      <div class="table-head"><div class="table-title">Libro IVA Compras</div></div>
+      <table>
+        <thead><tr><th>Fecha</th><th>N° Factura</th><th>Tipo</th><th>Proveedor</th><th>Neto Grav.</th><th>Neto No Grav.</th><th>IVA 21%</th><th>IVA 10.5%</th><th>Total</th></tr></thead>
+        <tbody>${fact.map(f=>{const pr=proveedores.find(p=>p.id===f.proveedor_id);return`<tr>
+          <td class="td-mono">${fmtDate(f.fecha)}</td>
+          <td class="td-mono">${escH(f.numero)}</td>
+          <td><span class="badge badge-gray">${f.tipo}</span></td>
+          <td>${escH(pr?.razon_social||'—')}</td>
+          <td class="td-mono">${fmtMoney(f.neto_gravado,f.moneda)}</td>
+          <td class="td-mono">${fmtMoney(f.neto_no_gravado,f.moneda)}</td>
+          <td class="td-mono">${fmtMoney(f.iva_21,f.moneda)}</td>
+          <td class="td-mono">${fmtMoney(f.iva_105,f.moneda)}</td>
+          <td class="td-mono" style="color:var(--text)">${fmtMoney(f.total,f.moneda)}</td>
+        </tr>`}).join('')||'<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:20px">Sin datos</td></tr>'}
+        </tbody>
+      </table>
+      <div style="padding:12px 14px;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        ${[['Neto Gravado',totalNeto,'var(--text)'],['IVA 21%',totalIVA21,'var(--accent)'],['IVA 10.5%',totalIVA105,'var(--blue)'],['Total CF',totalIVA21+totalIVA105,'var(--red)']].map(([l,v,c])=>`<div><div style="font-size:9px;color:var(--text3);font-family:var(--mono);margin-bottom:3px">${l}</div><div style="font-size:15px;font-weight:600;font-family:var(--mono);color:${c}">${fmtMoney(v)}</div></div>`).join('')}
+      </div>
+    </div>`;
+  }
+}
+
+/* ══════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════ */
+function emptyRow(cols){ return `<tr><td colspan="${cols}" style="text-align:center;color:var(--text3);padding:32px;font-size:13px">Sin registros</td></tr>` }
+
+/* ══════════════════════════════════════════
+   BOOT
+══════════════════════════════════════════ */
+(async function(){
+  try{
+    await loadAll();
+    q('loading').classList.add('hidden');
+    q('app').style.display='flex';
+    showView('dashboard');
+    initReporteFilters();
+  }catch(e){
+    q('loading').innerHTML=`<div style="text-align:center;color:var(--red)">
+      <div style="font-size:24px;margin-bottom:12px">✕</div>
+      <div style="font-family:var(--mono);font-size:13px">Error al conectar con Supabase</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:8px">${e.message}</div>
+    </div>`;
+  }
+})();
+</script>
+</body>
+</html>
