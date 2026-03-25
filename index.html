@@ -140,8 +140,15 @@
           <p id="page-subtitle">Control operativo de ventas, compras, cobros y pagos.</p>
         </div>
         <div class="spacer"></div>
-        <button class="btn" onclick="app.openConfigModal()">Configurar Supabase</button>
-        <button class="btn primary" id="primary-action" onclick="app.handlePrimaryAction()">Acción</button>
+        <script>
+const SUPABASE_URL = "https://ivlvlsgkffsgetjcbzuo.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2bHZsc2drZmZzZ2V0amNienVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjM2MzUsImV4cCI6MjA5MDAzOTYzNX0.wSBnzVFxEXmN4bsFNDA9C-XGGvb5f9cMC1SqE-veHJI";
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+</script>
       </div>
 
       <div class="content">
