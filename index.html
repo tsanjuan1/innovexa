@@ -28,7 +28,7 @@
     * { box-sizing: border-box; }
     html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); }
     button, input, select, textarea { font: inherit; }
-    .app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+    .app { display: grid; grid-template-columns: 280px minmax(0,1fr); min-height: 100vh; }
     .sidebar { background: linear-gradient(180deg, #0b1220 0%, #0f172a 100%); border-right: 1px solid var(--border); padding: 18px; }
     .brand { display: flex; align-items: center; gap: 12px; padding: 10px 8px 20px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
     .logo { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--cyan)); display: grid; place-items: center; font-weight: 800; font-size: 15px; }
@@ -140,8 +140,7 @@
           <p id="page-subtitle">Control operativo de ventas, compras, cobros y pagos.</p>
         </div>
         <div class="spacer"></div>
-        <button class="btn" onclick="app.openConfigModal()">Configurar Supabase</button>
-        <button class="btn primary" id="primary-action" onclick="app.handlePrimaryAction()">Acción</button>
+                <button class="btn primary" id="primary-action" onclick="app.handlePrimaryAction()">Acción</button>
       </div>
 
       <div class="content">
@@ -169,9 +168,8 @@
 
   <script>
     const DEFAULT_CONFIG = {
-      supabaseUrl: 'https://TU-PROYECTO.supabase.co',
-      supabaseAnonKey: 'REEMPLAZAR_CON_ANON_KEY',
-      storageKey: 'innovexa-erp-config-v2'
+      supabaseUrl: 'https://ivlvlsgkffsgetjcbzuo.supabase.co',
+      supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2bHZsc2drZmZzZ2V0amNienVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjM2MzUsImV4cCI6MjA5MDAzOTYzNX0.wSBnzVFxEXmN4bsFNDA9C-XGGvb5f9cMC1SqE-veHJI',
     };
 
     const app = {
@@ -214,21 +212,15 @@
       },
 
       loadConfig() {
-        try {
-          const raw = localStorage.getItem(DEFAULT_CONFIG.storageKey);
-          if (!raw) return;
-          const parsed = JSON.parse(raw);
-          this.config = { ...this.config, ...parsed };
-        } catch (error) {
-          console.error(error);
-        }
+        this.config = {
+          ...DEFAULT_CONFIG,
+          supabaseUrl: String(DEFAULT_CONFIG.supabaseUrl || '').trim().replace(/\/$/, ''),
+          supabaseAnonKey: String(DEFAULT_CONFIG.supabaseAnonKey || '').trim()
+        };
       },
 
       saveConfig() {
-        localStorage.setItem(DEFAULT_CONFIG.storageKey, JSON.stringify({
-          supabaseUrl: this.config.supabaseUrl,
-          supabaseAnonKey: this.config.supabaseAnonKey
-        }));
+        return;
       },
 
       get headers() {
@@ -248,7 +240,7 @@
 
       async api(path, options = {}) {
         if (!this.configured) {
-          throw new Error('Configurá SUPABASE_URL y SUPABASE_ANON_KEY antes de operar.');
+          throw new Error('La conexión con Supabase no está disponible. Revisá las credenciales embebidas en el HTML.');
         }
         const response = await fetch(`${this.config.supabaseUrl}${path}`, {
           method: options.method || 'GET',
@@ -297,7 +289,7 @@
 
       async refresh() {
         if (!this.configured) {
-          this.showAuthWarning('Todavía no cargaste la URL y la anon key de Supabase. Abrí “Configurar Supabase”, pegá ambos valores y guardá.');
+          this.showAuthWarning('La conexión con Supabase no está disponible. Revisá las credenciales embebidas en el HTML.');
           this.renderView();
           this.updateSidebar();
           return;
@@ -704,35 +696,11 @@
       },
 
       openConfigModal() {
-        this.openModal({
-          title: 'Configurar Supabase',
-          subtitle: 'Pegá la URL del proyecto y la anon key. Se guardan en localStorage del navegador.',
-          body: `
-            <div class="form-grid">
-              <div class="form-field full">
-                <label>SUPABASE_URL</label>
-                <input id="cfg-url" class="input" value="${this.escapeAttr(this.config.supabaseUrl)}">
-              </div>
-              <div class="form-field full">
-                <label>SUPABASE_ANON_KEY</label>
-                <textarea id="cfg-key" class="textarea">${this.escape(this.config.supabaseAnonKey)}</textarea>
-              </div>
-            </div>
-          `,
-          footer: `
-            <button class="btn" onclick="app.closeModal()">Cancelar</button>
-            <button class="btn primary" onclick="app.saveConfigFromModal()">Guardar</button>
-          `
-        });
+        return;
       },
 
       saveConfigFromModal() {
-        this.config.supabaseUrl = document.getElementById('cfg-url').value.trim().replace(/\/$/, '');
-        this.config.supabaseAnonKey = document.getElementById('cfg-key').value.trim();
-        this.saveConfig();
-        this.closeModal();
-        this.showToast('Configuración guardada.');
-        this.refresh().catch(error => this.handleError(error));
+        return;
       },
 
       openClienteModal(id = null) {
