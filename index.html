@@ -1,1250 +1,1933 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Innovexa ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
+    /* ===== TOKENS ===== */
     :root {
-      --bg: #0f172a;
-      --panel: #111827;
-      --panel-2: #1f2937;
-      --panel-3: #243041;
-      --border: #334155;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --accent: #4f46e5;
-      --accent-2: #4338ca;
-      --green: #10b981;
-      --red: #ef4444;
-      --amber: #f59e0b;
-      --cyan: #06b6d4;
       --radius: 14px;
       --radius-sm: 10px;
-      --shadow: 0 10px 30px rgba(0,0,0,.25);
-      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --radius-xs: 7px;
+      --shadow: 0 8px 32px rgba(0,0,0,.22);
+      --shadow-sm: 0 2px 10px rgba(0,0,0,.14);
+      --font: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+      --mono: 'DM Mono', ui-monospace, monospace;
+      --transition: .18s cubic-bezier(.4,0,.2,1);
     }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); }
+    [data-theme="dark"] {
+      --bg: #0d1117;
+      --bg2: #111827;
+      --panel: #161d2b;
+      --panel-2: #1c2436;
+      --panel-3: #232e42;
+      --border: #263147;
+      --border-soft: #1e2a3d;
+      --text: #e2e8f0;
+      --text-2: #94a3b8;
+      --text-3: #64748b;
+      --accent: #4f8cff;
+      --accent-2: #3b70d4;
+      --accent-glow: rgba(79,140,255,.18);
+      --green: #22c55e;
+      --green-bg: rgba(34,197,94,.12);
+      --red: #ef4444;
+      --red-bg: rgba(239,68,68,.12);
+      --amber: #f59e0b;
+      --amber-bg: rgba(245,158,11,.12);
+      --cyan: #06b6d4;
+      --cyan-bg: rgba(6,182,212,.12);
+      --purple: #a78bfa;
+      --purple-bg: rgba(167,139,250,.12);
+      --sidebar-bg: linear-gradient(180deg, #0b1120 0%, #0d1117 100%);
+      --topbar-bg: rgba(13,17,23,.88);
+      --input-bg: #111827;
+      --scrollbar: #263147;
+      --card-hover: rgba(79,140,255,.04);
+    }
+    [data-theme="light"] {
+      --bg: #f1f5fb;
+      --bg2: #e8eef8;
+      --panel: #ffffff;
+      --panel-2: #f8faff;
+      --panel-3: #eef2fa;
+      --border: #d1daea;
+      --border-soft: #e4eaf4;
+      --text: #0f172a;
+      --text-2: #475569;
+      --text-3: #94a3b8;
+      --accent: #3b70d4;
+      --accent-2: #2959b8;
+      --accent-glow: rgba(59,112,212,.12);
+      --green: #16a34a;
+      --green-bg: rgba(22,163,74,.1);
+      --red: #dc2626;
+      --red-bg: rgba(220,38,38,.1);
+      --amber: #d97706;
+      --amber-bg: rgba(217,119,6,.1);
+      --cyan: #0891b2;
+      --cyan-bg: rgba(8,145,178,.1);
+      --purple: #7c3aed;
+      --purple-bg: rgba(124,58,237,.1);
+      --sidebar-bg: linear-gradient(180deg, #e8eef8 0%, #f1f5fb 100%);
+      --topbar-bg: rgba(241,245,251,.92);
+      --input-bg: #f8faff;
+      --scrollbar: #cbd5e1;
+      --card-hover: rgba(59,112,212,.04);
+    }
+
+    /* ===== RESET ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; }
+    html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.5; }
     button, input, select, textarea { font: inherit; }
-    .app { display: grid; grid-template-columns: 280px minmax(0,1fr); min-height: 100vh; }
-    .sidebar { background: linear-gradient(180deg, #0b1220 0%, #0f172a 100%); border-right: 1px solid var(--border); padding: 18px; }
-    .brand { display: flex; align-items: center; gap: 12px; padding: 10px 8px 20px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
-    .logo { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--cyan)); display: grid; place-items: center; font-weight: 800; font-size: 15px; }
-    .brand h1 { margin: 0; font-size: 16px; }
-    .brand p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
-    .nav-title { margin: 16px 8px 8px; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .12em; }
-    .nav button { width: 100%; text-align: left; border: 0; background: transparent; color: var(--text); padding: 12px 14px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-    .nav button:hover { background: rgba(148,163,184,.08); }
-    .nav button.active { background: rgba(79,70,229,.18); color: #fff; }
-    .nav small { color: var(--muted); }
-    .sidebar-card { margin-top: 18px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
-    .sidebar-card h3 { margin: 0 0 12px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-    .metric { display: flex; justify-content: space-between; gap: 12px; margin: 10px 0; }
-    .metric span:first-child { color: var(--muted); }
-    .metric strong { font-family: var(--mono); }
+    a { color: var(--accent); text-decoration: none; }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 99px; }
+
+    /* ===== LAYOUT ===== */
+    .app { display: grid; grid-template-columns: 260px minmax(0,1fr); min-height: 100vh; }
+    .sidebar {
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
     .main { display: flex; flex-direction: column; min-width: 0; }
-    .topbar { display: flex; align-items: center; gap: 12px; padding: 18px 24px; border-bottom: 1px solid var(--border); background: rgba(15,23,42,.92); position: sticky; top: 0; z-index: 20; backdrop-filter: blur(8px); }
-    .topbar h2 { margin: 0; font-size: 20px; }
-    .topbar p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
-    .topbar .spacer { flex: 1; }
-    .content { padding: 24px; }
-    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 18px; }
-    .input, .select, .textarea { width: 100%; background: var(--panel); border: 1px solid var(--border); color: var(--text); border-radius: 12px; padding: 10px 12px; }
-    .textarea { min-height: 88px; resize: vertical; }
-    .input:focus, .select:focus, .textarea:focus { outline: 2px solid rgba(79,70,229,.35); border-color: transparent; }
-    .btn { border: 1px solid var(--border); background: var(--panel); color: var(--text); padding: 10px 14px; border-radius: 12px; cursor: pointer; }
+
+    /* ===== BRAND ===== */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 8px 18px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .logo {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      display: grid; place-items: center;
+      font-weight: 700; font-size: 14px; color: #fff;
+      box-shadow: 0 4px 14px var(--accent-glow);
+      flex-shrink: 0;
+    }
+    .brand-text h1 { font-size: 15px; font-weight: 700; letter-spacing: -.02em; }
+    .brand-text p { color: var(--text-2); font-size: 11.5px; }
+
+    /* ===== NAV ===== */
+    .nav-section { margin-bottom: 6px; }
+    .nav-title { color: var(--text-3); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; padding: 10px 10px 6px; }
+    .nav-btn {
+      width: 100%; text-align: left; border: 0;
+      background: transparent; color: var(--text-2);
+      padding: 9px 10px; border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 2px; transition: background var(--transition), color var(--transition);
+      font-size: 13.5px;
+    }
+    .nav-btn:hover { background: var(--panel-3); color: var(--text); }
+    .nav-btn.active { background: var(--accent-glow); color: var(--accent); font-weight: 600; }
+    .nav-btn .nav-icon { font-size: 15px; margin-right: 8px; opacity: .7; }
+    .nav-btn.active .nav-icon { opacity: 1; }
+    .nav-left { display: flex; align-items: center; }
+    .nav-count { background: var(--panel-3); color: var(--text-3); font-size: 11px; font-family: var(--mono); padding: 1px 7px; border-radius: 99px; }
+    .nav-btn.active .nav-count { background: var(--accent-glow); color: var(--accent); }
+
+    /* ===== SIDEBAR BOTTOM ===== */
+    .sidebar-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+    .sidebar-metrics { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+    .sidebar-metrics h3 { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--text-3); margin-bottom: 10px; }
+    .metric-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 7px 0; }
+    .metric-row span { color: var(--text-2); font-size: 12.5px; }
+    .metric-row strong { font-family: var(--mono); font-size: 12.5px; color: var(--text); }
+
+    /* ===== THEME TOGGLE ===== */
+    .theme-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 10px; border-radius: var(--radius-sm);
+      background: var(--panel); border: 1px solid var(--border);
+      cursor: pointer; color: var(--text-2); font-size: 12.5px;
+      transition: background var(--transition);
+    }
+    .theme-toggle:hover { background: var(--panel-3); }
+    .toggle-track {
+      width: 36px; height: 20px; border-radius: 99px;
+      background: var(--panel-3); border: 1px solid var(--border);
+      position: relative; transition: background var(--transition);
+      flex-shrink: 0;
+    }
+    [data-theme="light"] .toggle-track { background: var(--accent); border-color: var(--accent); }
+    .toggle-thumb {
+      position: absolute; top: 2px; left: 2px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--text-3); transition: transform var(--transition), background var(--transition);
+    }
+    [data-theme="light"] .toggle-thumb { transform: translateX(16px); background: #fff; }
+
+    /* ===== TOPBAR ===== */
+    .topbar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--topbar-bg);
+      position: sticky; top: 0; z-index: 20;
+      backdrop-filter: blur(12px);
+    }
+    .topbar-info h2 { font-size: 17px; font-weight: 700; letter-spacing: -.02em; }
+    .topbar-info p { color: var(--text-2); font-size: 12.5px; margin-top: 1px; }
+    .topbar-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
+    /* ===== NOTIFICATION BELL ===== */
+    .notif-btn {
+      position: relative;
+      width: 36px; height: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--panel); border: 1px solid var(--border);
+      display: grid; place-items: center;
+      cursor: pointer; color: var(--text-2);
+      font-size: 16px; transition: background var(--transition);
+    }
+    .notif-btn:hover { background: var(--panel-3); }
+    .notif-badge {
+      position: absolute; top: -4px; right: -4px;
+      background: var(--red); color: #fff;
+      font-size: 9px; font-weight: 700;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: grid; place-items: center;
+      border: 2px solid var(--bg);
+    }
+    .notif-badge.hidden { display: none; }
+
+    /* ===== CONTENT ===== */
+    .content { padding: 22px 24px; flex: 1; }
+
+    /* ===== TOOLBAR ===== */
+    .toolbar {
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+      margin-bottom: 16px;
+    }
+    .toolbar-left { display: flex; gap: 8px; flex: 1; flex-wrap: wrap; align-items: center; }
+    .toolbar-right { display: flex; gap: 8px; align-items: center; }
+
+    /* ===== INPUTS ===== */
+    .input, .select, .textarea {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .input:focus, .select:focus, .textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .input::placeholder { color: var(--text-3); }
+    .textarea { min-height: 80px; resize: vertical; width: 100%; }
+    .input-search { min-width: 240px; }
+    .input-date { width: 150px; }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      padding: 9px 14px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 13.5px;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: background var(--transition), border-color var(--transition), transform var(--transition);
+      white-space: nowrap;
+    }
     .btn:hover { background: var(--panel-2); }
-    .btn.primary { background: var(--accent); border-color: var(--accent); }
-    .btn.primary:hover { background: var(--accent-2); }
-    .btn.danger { border-color: rgba(239,68,68,.35); color: #fecaca; }
-    .btn.ghost { background: transparent; }
-    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
-    .section { padding: 18px; }
-    .section h3 { margin: 0 0 6px; }
-    .section p { margin: 0; color: var(--muted); }
-    .grid { display: grid; gap: 16px; }
-    .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .stats .card { padding: 18px; }
-    .stats .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
-    .stats .value { margin-top: 10px; font-size: 28px; font-weight: 700; font-family: var(--mono); }
-    .stats .sub { margin-top: 8px; color: var(--muted); font-size: 13px; }
-    .table-wrap { overflow: auto; }
+    .btn:active { transform: scale(.98); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 14px var(--accent-glow); }
+    .btn.primary:hover { background: var(--accent-2); border-color: var(--accent-2); }
+    .btn.danger { border-color: rgba(239,68,68,.25); color: var(--red); }
+    .btn.danger:hover { background: var(--red-bg); }
+    .btn.ghost { background: transparent; border-color: transparent; color: var(--text-2); }
+    .btn.ghost:hover { background: var(--panel-3); color: var(--text); }
+    .btn.success { background: var(--green); border-color: var(--green); color: #fff; }
+    .btn.sm { padding: 6px 10px; font-size: 12.5px; }
+    .btn.icon-only { width: 36px; height: 36px; padding: 0; display: grid; place-items: center; }
+
+    /* ===== CARDS ===== */
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); }
+    .card-hover:hover { background: var(--card-hover); }
+
+    /* ===== STATS GRID ===== */
+    .stats-grid { display: grid; gap: 14px; margin-bottom: 18px; }
+    .stats-grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .stats-grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .stat-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      display: flex; flex-direction: column; gap: 4px;
+      transition: box-shadow var(--transition);
+    }
+    .stat-card:hover { box-shadow: var(--shadow-sm); }
+    .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--text-3); }
+    .stat-value { font-size: 24px; font-weight: 700; font-family: var(--mono); letter-spacing: -.02em; margin-top: 6px; }
+    .stat-sub { font-size: 12px; color: var(--text-2); margin-top: 4px; }
+    .stat-accent { color: var(--accent); }
+    .stat-green { color: var(--green); }
+    .stat-red { color: var(--red); }
+    .stat-amber { color: var(--amber); }
+    .stat-indicator { width: 4px; height: 100%; border-radius: 2px; }
+
+    /* ===== CONTENT GRID ===== */
+    .content-grid { display: grid; gap: 16px; }
+    .content-grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .content-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    /* ===== TABLE ===== */
+    .table-wrap { overflow: auto; border-radius: var(--radius); }
     table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px 14px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; }
-    th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-    td .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    tr:hover td { background: rgba(148,163,184,.04); }
-    .badge { display: inline-flex; align-items: center; padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
-    .badge.pendiente { background: rgba(245,158,11,.16); color: #fcd34d; }
-    .badge.parcial { background: rgba(6,182,212,.15); color: #67e8f9; }
-    .badge.pagada { background: rgba(16,185,129,.16); color: #86efac; }
-    .badge.anulada { background: rgba(148,163,184,.16); color: #cbd5e1; }
-    .empty { padding: 42px 18px; text-align: center; color: var(--muted); }
-    .mono { font-family: var(--mono); }
-    .split { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
-    .filters { display: grid; grid-template-columns: 220px 220px 1fr; gap: 10px; }
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(2,6,23,.8); display: none; align-items: center; justify-content: center; padding: 24px; z-index: 100; }
-    .modal-backdrop.open { display: flex; }
-    .modal { width: min(760px, 100%); background: var(--panel-2); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; box-shadow: var(--shadow); }
-    .modal header, .modal footer { padding: 18px 22px; border-bottom: 1px solid var(--border); }
-    .modal footer { border-top: 1px solid var(--border); border-bottom: 0; display: flex; justify-content: flex-end; gap: 10px; }
-    .modal .body { padding: 22px; }
+    thead { position: sticky; top: 0; z-index: 1; }
+    th {
+      padding: 10px 14px;
+      background: var(--panel-2);
+      border-bottom: 1px solid var(--border);
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .08em;
+      color: var(--text-3); white-space: nowrap;
+      text-align: left;
+    }
+    td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border-soft);
+      vertical-align: middle;
+      font-size: 13.5px;
+    }
+    tr:last-child td { border-bottom: 0; }
+    tr:hover td { background: var(--card-hover); }
+    .td-mono { font-family: var(--mono); font-size: 13px; }
+    .td-actions { display: flex; gap: 6px; align-items: center; }
+
+    /* ===== BADGES ===== */
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 3px 9px; border-radius: 99px;
+      font-size: 11px; font-weight: 700; letter-spacing: .03em;
+    }
+    .badge.pendiente { background: var(--amber-bg); color: var(--amber); }
+    .badge.parcial { background: var(--cyan-bg); color: var(--cyan); }
+    .badge.pagada { background: var(--green-bg); color: var(--green); }
+    .badge.anulada { background: var(--panel-3); color: var(--text-3); }
+    .badge.activo { background: var(--green-bg); color: var(--green); }
+
+    /* ===== EMPTY ===== */
+    .empty {
+      padding: 52px 20px; text-align: center;
+      color: var(--text-3);
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    .empty-icon { font-size: 36px; opacity: .4; }
+    .empty p { font-size: 13.5px; }
+
+    /* ===== SECTION HEADER ===== */
+    .section-header { padding: 16px 18px; border-bottom: 1px solid var(--border); }
+    .section-header h3 { font-size: 14px; font-weight: 700; }
+    .section-header p { color: var(--text-2); font-size: 12.5px; margin-top: 2px; }
+    .section-body { padding: 4px 0; }
+
+    /* ===== MODAL ===== */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(2,6,23,.75);
+      display: none; align-items: center; justify-content: center;
+      padding: 24px; z-index: 100;
+      backdrop-filter: blur(4px);
+    }
+    .modal-backdrop.open { display: flex; animation: fadeIn .15s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal {
+      width: min(780px, 100%);
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,.4);
+      animation: slideUp .18s cubic-bezier(.4,0,.2,1);
+      max-height: 90vh;
+      display: flex; flex-direction: column;
+    }
+    @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .modal-header h3 { font-size: 15px; font-weight: 700; }
+    .modal-header p { color: var(--text-2); font-size: 12.5px; margin-top: 3px; }
+    .modal-body { padding: 22px; overflow-y: auto; flex: 1; }
+    .modal-footer {
+      padding: 14px 22px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: flex-end; gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* ===== FORM ===== */
     .form-grid { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .form-grid .full { grid-column: 1 / -1; }
-    .form-field label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
-    .toast { position: fixed; right: 20px; bottom: 20px; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); padding: 12px 14px; border-radius: 12px; display: none; z-index: 150; }
-    .toast.show { display: block; }
-    .auth-warning { margin-bottom: 18px; padding: 14px; border: 1px dashed rgba(245,158,11,.4); background: rgba(245,158,11,.08); border-radius: 14px; color: #fde68a; }
+    .form-grid .cols-3 { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .form-field label { display: block; margin-bottom: 6px; color: var(--text-2); font-size: 11.5px; font-weight: 600; letter-spacing: .04em; }
+    .form-field .input, .form-field .select, .form-field .textarea { width: 100%; }
+
+    /* ===== NOTIFICATION PANEL ===== */
+    .notif-panel {
+      position: fixed; top: 62px; right: 24px;
+      width: 340px; background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      z-index: 90; display: none;
+      max-height: 480px; overflow-y: auto;
+    }
+    .notif-panel.open { display: block; animation: slideUp .16s ease; }
+    .notif-panel-header { padding: 14px 16px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13.5px; display: flex; justify-content: space-between; align-items: center; }
+    .notif-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-soft);
+      display: flex; gap: 10px; align-items: flex-start;
+      cursor: default;
+      transition: background var(--transition);
+    }
+    .notif-item:hover { background: var(--card-hover); }
+    .notif-item:last-child { border-bottom: 0; }
+    .notif-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .notif-dot.red { background: var(--red); }
+    .notif-dot.amber { background: var(--amber); }
+    .notif-text { font-size: 13px; line-height: 1.5; }
+    .notif-sub { color: var(--text-2); font-size: 11.5px; margin-top: 2px; }
+
+    /* ===== IMPORT PANEL ===== */
+    .import-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .import-zone:hover, .import-zone.drag-over {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+    .import-icon { font-size: 32px; margin-bottom: 10px; }
+    .import-hint { color: var(--text-2); font-size: 13px; margin-top: 6px; }
+    .import-result { margin-top: 16px; }
+    .import-table-wrap { max-height: 280px; overflow: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+    .import-preview table th, .import-preview table td { font-size: 12px; padding: 7px 10px; }
+
+    /* ===== TOAST ===== */
+    .toast-container { position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 200; }
+    .toast {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: var(--shadow);
+      animation: toastIn .2s cubic-bezier(.4,0,.2,1);
+      min-width: 260px;
+    }
+    .toast.success { border-left: 3px solid var(--green); }
+    .toast.error { border-left: 3px solid var(--red); }
+    @keyframes toastIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* ===== AUTH WARNING ===== */
+    .auth-warning {
+      margin-bottom: 16px; padding: 12px 16px;
+      border: 1px solid rgba(245,158,11,.3);
+      background: var(--amber-bg);
+      border-radius: var(--radius-sm);
+      color: var(--amber); font-size: 13.5px;
+    }
+
+    /* ===== VENCIMIENTOS ===== */
+    .venc-row-urgente td { border-left: 2px solid var(--red); }
+    .venc-row-proximo td:first-child { border-left: 2px solid var(--amber); }
+
+    /* ===== PROGRESS BAR ===== */
+    .progress-bar { height: 4px; background: var(--panel-3); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+    .progress-fill { height: 100%; border-radius: 99px; background: var(--accent); transition: width .3s ease; }
+
+    /* ===== UTILS ===== */
     .hidden { display: none !important; }
-    @media (max-width: 1100px) {
-      .grid.cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .filters { grid-template-columns: 1fr; }
+    .mono { font-family: var(--mono); }
+    .text-muted { color: var(--text-2); }
+    .text-sm { font-size: 12.5px; }
+    .flex { display: flex; align-items: center; }
+    .gap-8 { gap: 8px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-12 { margin-top: 12px; }
+    .divider { border: 0; border-top: 1px solid var(--border); margin: 14px 0; }
+
+    /* ===== DASHBOARD ACTIVITY ===== */
+    .activity-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 18px;
+      border-bottom: 1px solid var(--border-soft);
+      font-size: 13px;
+    }
+    .activity-item:last-child { border-bottom: 0; }
+    .activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .activity-dot.cobro { background: var(--green); }
+    .activity-dot.pago { background: var(--red); }
+    .activity-info { flex: 1; min-width: 0; }
+    .activity-main { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .activity-sub { color: var(--text-2); font-size: 11.5px; margin-top: 1px; }
+    .activity-amount { font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1200px) {
+      .stats-grid.cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 900px) {
       .app { grid-template-columns: 1fr; }
       .sidebar { display: none; }
-      .form-grid, .grid.cols-2 { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .content-grid.cols-2 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .content { padding: 14px 16px; }
+      .topbar { padding: 12px 16px; }
+      .stats-grid.cols-4 { grid-template-columns: 1fr; }
+      .toolbar { flex-direction: column; }
+      .input-search { min-width: 0; width: 100%; }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="logo">IN</div>
-        <div>
-          <h1>Innovexa ERP</h1>
-          <p>Frontend reescrito para Supabase</p>
-        </div>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">IN</div>
+      <div class="brand-text">
+        <h1>Innovexa ERP</h1>
+        <p>Sistema de gestión</p>
       </div>
-
-      <div class="nav-title">Módulos</div>
-      <nav class="nav" id="nav"></nav>
-
-      <div class="sidebar-card">
-        <h3>Resumen rápido</h3>
-        <div class="metric"><span>Por cobrar</span><strong id="sb-cobrar">$ 0,00</strong></div>
-        <div class="metric"><span>Por pagar</span><strong id="sb-pagar">$ 0,00</strong></div>
-        <div class="metric"><span>Facturas venta</span><strong id="sb-fv">0</strong></div>
-        <div class="metric"><span>Facturas compra</span><strong id="sb-fc">0</strong></div>
-      </div>
-    </aside>
-
-    <main class="main">
-      <div class="topbar">
-        <div>
-          <h2 id="page-title">Dashboard</h2>
-          <p id="page-subtitle">Control operativo de ventas, compras, cobros y pagos.</p>
-        </div>
-        <div class="spacer"></div>
-                <button class="btn primary" id="primary-action" onclick="app.handlePrimaryAction()">Acción</button>
-      </div>
-
-      <div class="content">
-        <div id="auth-warning" class="auth-warning hidden"></div>
-        <div id="view"></div>
-      </div>
-    </main>
-  </div>
-
-  <div class="modal-backdrop" id="modal-backdrop">
-    <div class="modal" role="dialog" aria-modal="true">
-      <header class="split">
-        <div>
-          <h3 id="modal-title" style="margin:0"></h3>
-          <p id="modal-subtitle" style="margin:6px 0 0;color:var(--muted)"></p>
-        </div>
-        <button class="btn ghost" onclick="app.closeModal()">Cerrar</button>
-      </header>
-      <div class="body" id="modal-body"></div>
-      <footer id="modal-footer"></footer>
     </div>
+
+    <div class="nav-section">
+      <div class="nav-title">Principal</div>
+      <nav id="nav"></nav>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-metrics">
+        <h3>Resumen rápido</h3>
+        <div class="metric-row"><span>Por cobrar</span><strong id="sb-cobrar">$ 0,00</strong></div>
+        <div class="metric-row"><span>Por pagar</span><strong id="sb-pagar">$ 0,00</strong></div>
+        <div class="metric-row"><span>Facturas venta</span><strong id="sb-fv">0</strong></div>
+        <div class="metric-row"><span>Facturas compra</span><strong id="sb-fc">0</strong></div>
+      </div>
+      <button class="theme-toggle" onclick="app.toggleTheme()" id="theme-toggle-btn">
+        <span id="theme-label">🌙 Tema oscuro</span>
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-info">
+        <h2 id="page-title">Dashboard</h2>
+        <p id="page-subtitle">Control operativo en tiempo real.</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="notif-btn" id="notif-btn" onclick="app.toggleNotifPanel()" title="Notificaciones de vencimiento">
+          🔔
+          <span class="notif-badge hidden" id="notif-badge">0</span>
+        </button>
+        <button class="btn primary hidden" id="primary-action" onclick="app.handlePrimaryAction()">Acción</button>
+      </div>
+    </div>
+
+    <!-- NOTIFICATION PANEL -->
+    <div class="notif-panel" id="notif-panel">
+      <div class="notif-panel-header">
+        <span>Vencimientos</span>
+        <button class="btn ghost sm" onclick="app.closeNotifPanel()">✕</button>
+      </div>
+      <div id="notif-list"></div>
+    </div>
+
+    <div class="content">
+      <div id="auth-warning" class="auth-warning hidden"></div>
+      <div id="view"></div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <div>
+        <h3 id="modal-title"></h3>
+        <p id="modal-subtitle"></p>
+      </div>
+      <button class="btn ghost icon-only" onclick="app.closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
   </div>
-
-  <div class="toast" id="toast"></div>
-
-  <script>
-    const DEFAULT_CONFIG = {
-      supabaseUrl: 'https://ivlvlsgkffsgetjcbzuo.supabase.co',
-      supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2bHZsc2drZmZzZ2V0amNienVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjM2MzUsImV4cCI6MjA5MDAzOTYzNX0.wSBnzVFxEXmN4bsFNDA9C-XGGvb5f9cMC1SqE-veHJI',
-    };
-
-    const app = {
-      config: { ...DEFAULT_CONFIG },
-      state: {
-        currentView: 'dashboard',
-        clientes: [],
-        proveedores: [],
-        facturasVenta: [],
-        facturasCompra: [],
-        cobros: [],
-        pagos: [],
-        filters: {
-          clientes: '',
-          proveedores: '',
-          fventas: '',
-          fcompras: '',
-          cobros: '',
-          pagos: '',
-          reportMoneda: 'ARS'
-        }
-      },
-      views: [
-        { key: 'dashboard', title: 'Dashboard', action: null },
-        { key: 'clientes', title: 'Clientes', action: 'Nuevo cliente' },
-        { key: 'fventas', title: 'Facturas de venta', action: 'Nueva factura' },
-        { key: 'cobros', title: 'Cobros', action: 'Nuevo cobro' },
-        { key: 'proveedores', title: 'Proveedores', action: 'Nuevo proveedor' },
-        { key: 'fcompras', title: 'Facturas de compra', action: 'Nueva factura' },
-        { key: 'pagos', title: 'Pagos', action: 'Nuevo pago' },
-        { key: 'reportes', title: 'Reportes', action: null }
-      ],
-
-      init() {
-        this.loadConfig();
-        this.renderNav();
-        this.updateTopbar();
-        this.renderView();
-        this.refresh().catch(error => this.handleError(error));
-      },
-
-      loadConfig() {
-        this.config = {
-          ...DEFAULT_CONFIG,
-          supabaseUrl: String(DEFAULT_CONFIG.supabaseUrl || '').trim().replace(/\/$/, ''),
-          supabaseAnonKey: String(DEFAULT_CONFIG.supabaseAnonKey || '').trim()
-        };
-      },
-
-      saveConfig() {
-        return;
-      },
-
-      get headers() {
-        return {
-          'Content-Type': 'application/json',
-          apikey: this.config.supabaseAnonKey,
-          Authorization: `Bearer ${this.config.supabaseAnonKey}`
-        };
-      },
-
-      get configured() {
-        return this.config.supabaseUrl &&
-          this.config.supabaseAnonKey &&
-          !this.config.supabaseUrl.includes('TU-PROYECTO') &&
-          !this.config.supabaseAnonKey.includes('REEMPLAZAR');
-      },
-
-      async api(path, options = {}) {
-        if (!this.configured) {
-          throw new Error('La conexión con Supabase no está disponible. Revisá las credenciales embebidas en el HTML.');
-        }
-        const response = await fetch(`${this.config.supabaseUrl}${path}`, {
-          method: options.method || 'GET',
-          headers: { ...this.headers, ...(options.headers || {}) },
-          body: options.body ? JSON.stringify(options.body) : undefined
-        });
-        const text = await response.text();
-        const data = text ? JSON.parse(text) : null;
-        if (!response.ok) {
-          const message = data?.message || data?.hint || data?.details || `Error HTTP ${response.status}`;
-          throw new Error(message);
-        }
-        return data;
-      },
-
-      async select(resource, query) {
-        return this.api(`/rest/v1/${resource}?${query}`, { method: 'GET' });
-      },
-
-      async insert(resource, payload) {
-        return this.api(`/rest/v1/${resource}`, {
-          method: 'POST',
-          headers: { Prefer: 'return=representation' },
-          body: payload
-        }).then(rows => Array.isArray(rows) ? rows[0] : rows);
-      },
-
-      async update(resource, id, payload) {
-        return this.api(`/rest/v1/${resource}?id=eq.${id}`, {
-          method: 'PATCH',
-          headers: { Prefer: 'return=representation' },
-          body: payload
-        }).then(rows => Array.isArray(rows) ? rows[0] : rows);
-      },
-
-      async remove(resource, id) {
-        return this.api(`/rest/v1/${resource}?id=eq.${id}`, {
-          method: 'DELETE',
-          headers: { Prefer: 'return=representation' }
-        });
-      },
-
-      async rpc(name, payload) {
-        return this.api(`/rest/v1/rpc/${name}`, { method: 'POST', body: payload });
-      },
-
-      async refresh() {
-        if (!this.configured) {
-          this.showAuthWarning('La conexión con Supabase no está disponible. Revisá las credenciales embebidas en el HTML.');
-          this.renderView();
-          this.updateSidebar();
-          return;
-        }
-        this.hideAuthWarning();
-        const [clientes, proveedores, facturasVenta, facturasCompra, cobros, pagos] = await Promise.all([
-          this.select('clientes', 'select=*&order=razon_social.asc'),
-          this.select('proveedores', 'select=*&order=razon_social.asc'),
-          this.select('v_facturas_venta', 'select=*&order=fecha.desc'),
-          this.select('v_facturas_compra', 'select=*&order=fecha.desc'),
-          this.select('v_cobros', 'select=*&order=fecha.desc'),
-          this.select('v_pagos', 'select=*&order=fecha.desc')
-        ]);
-        this.state.clientes = clientes || [];
-        this.state.proveedores = proveedores || [];
-        this.state.facturasVenta = facturasVenta || [];
-        this.state.facturasCompra = facturasCompra || [];
-        this.state.cobros = cobros || [];
-        this.state.pagos = pagos || [];
-        this.updateSidebar();
-        this.renderView();
-      },
-
-      renderNav() {
-        const nav = document.getElementById('nav');
-        nav.innerHTML = this.views.map(view => `
-          <button class="${this.state.currentView === view.key ? 'active' : ''}" onclick="app.setView('${view.key}')">
-            <span>${view.title}</span>
-            <small>${this.navCount(view.key)}</small>
-          </button>
-        `).join('');
-      },
-
-      navCount(key) {
-        const { clientes, proveedores, facturasVenta, facturasCompra, cobros, pagos } = this.state;
-        const map = {
-          dashboard: '—',
-          clientes: clientes.length,
-          proveedores: proveedores.length,
-          fventas: facturasVenta.length,
-          fcompras: facturasCompra.length,
-          cobros: cobros.length,
-          pagos: pagos.length,
-          reportes: '—'
-        };
-        return map[key];
-      },
-
-      setView(key) {
-        this.state.currentView = key;
-        this.renderNav();
-        this.updateTopbar();
-        this.renderView();
-      },
-
-      updateTopbar() {
-        const view = this.views.find(item => item.key === this.state.currentView);
-        document.getElementById('page-title').textContent = view?.title || 'Innovexa ERP';
-        document.getElementById('page-subtitle').textContent = this.getSubtitle(this.state.currentView);
-        const btn = document.getElementById('primary-action');
-        if (!view?.action) {
-          btn.classList.add('hidden');
-        } else {
-          btn.classList.remove('hidden');
-          btn.textContent = view.action;
-        }
-      },
-
-      getSubtitle(key) {
-        const map = {
-          dashboard: 'Visión operativa en tiempo real.',
-          clientes: 'Alta, edición y control de cartera.',
-          proveedores: 'Gestión de proveedores y deuda comercial.',
-          fventas: 'Facturación de ventas con saldo y estado real.',
-          fcompras: 'Facturas de compra con saldo y estado real.',
-          cobros: 'Cobros vía RPC y saldo recalculado en SQL.',
-          pagos: 'Pagos vía RPC y saldo recalculado en SQL.',
-          reportes: 'Saldos abiertos, flujos y métricas por moneda.'
-        };
-        return map[key] || '';
-      },
-
-      handlePrimaryAction() {
-        const map = {
-          clientes: () => this.openClienteModal(),
-          proveedores: () => this.openProveedorModal(),
-          fventas: () => this.openFacturaVentaModal(),
-          fcompras: () => this.openFacturaCompraModal(),
-          cobros: () => this.openCobroModal(),
-          pagos: () => this.openPagoModal()
-        };
-        map[this.state.currentView]?.();
-      },
-
-      updateSidebar() {
-        const cobrar = this.state.facturasVenta.filter(row => row.estado !== 'anulada').reduce((acc, row) => acc + Number(row.saldo || 0), 0);
-        const pagar = this.state.facturasCompra.filter(row => row.estado !== 'anulada').reduce((acc, row) => acc + Number(row.saldo || 0), 0);
-        document.getElementById('sb-cobrar').textContent = this.formatMoney(cobrar, 'ARS');
-        document.getElementById('sb-pagar').textContent = this.formatMoney(pagar, 'ARS');
-        document.getElementById('sb-fv').textContent = String(this.state.facturasVenta.length);
-        document.getElementById('sb-fc').textContent = String(this.state.facturasCompra.length);
-        this.renderNav();
-      },
-
-      renderView() {
-        const view = document.getElementById('view');
-        const key = this.state.currentView;
-        const renderers = {
-          dashboard: () => this.renderDashboard(),
-          clientes: () => this.renderClientes(),
-          proveedores: () => this.renderProveedores(),
-          fventas: () => this.renderFacturasVenta(),
-          fcompras: () => this.renderFacturasCompra(),
-          cobros: () => this.renderCobros(),
-          pagos: () => this.renderPagos(),
-          reportes: () => this.renderReportes()
-        };
-        view.innerHTML = renderers[key]();
-      },
-
-      renderDashboard() {
-        const ventasPend = this.state.facturasVenta.filter(row => row.estado !== 'pagada' && row.estado !== 'anulada');
-        const comprasPend = this.state.facturasCompra.filter(row => row.estado !== 'pagada' && row.estado !== 'anulada');
-        const cobradoMes = this.sumCurrentMonth(this.state.cobros);
-        const pagadoMes = this.sumCurrentMonth(this.state.pagos);
-        const actividad = [
-          ...this.state.cobros.map(row => ({ fecha: row.fecha, tipo: 'Cobro', tercero: row.cliente_nombre, ref: row.factura_numero, importe: row.importe, moneda: row.moneda })),
-          ...this.state.pagos.map(row => ({ fecha: row.fecha, tipo: 'Pago', tercero: row.proveedor_nombre, ref: row.factura_numero, importe: row.importe, moneda: row.moneda }))
-        ].sort((a, b) => String(b.fecha).localeCompare(String(a.fecha))).slice(0, 12);
-
-        return `
-          <div class="grid cols-4 stats">
-            <div class="card"><div class="label">Por cobrar</div><div class="value">${this.formatMoney(this.totalSaldo(this.state.facturasVenta), 'ARS')}</div><div class="sub">${ventasPend.length} facturas abiertas</div></div>
-            <div class="card"><div class="label">Por pagar</div><div class="value">${this.formatMoney(this.totalSaldo(this.state.facturasCompra), 'ARS')}</div><div class="sub">${comprasPend.length} facturas abiertas</div></div>
-            <div class="card"><div class="label">Cobrado este mes</div><div class="value">${this.formatMoney(cobradoMes, 'ARS')}</div><div class="sub">${this.countCurrentMonth(this.state.cobros)} cobros</div></div>
-            <div class="card"><div class="label">Pagado este mes</div><div class="value">${this.formatMoney(pagadoMes, 'ARS')}</div><div class="sub">${this.countCurrentMonth(this.state.pagos)} pagos</div></div>
-          </div>
-          <div class="grid cols-2" style="margin-top:16px">
-            <div class="card section">
-              <h3>Facturas de venta abiertas</h3>
-              <p>Las facturas cerradas ya no ensucian el seguimiento.</p>
-              ${this.simpleTable(
-                ['Fecha', 'Cliente', 'Número', 'Saldo', 'Estado'],
-                ventasPend.slice(0, 8).map(row => [
-                  this.formatDate(row.fecha),
-                  this.escape(row.cliente_nombre),
-                  this.escape(row.numero),
-                  this.formatMoney(row.saldo, row.moneda),
-                  this.estadoBadge(row.estado)
-                ]),
-                'No hay facturas de venta abiertas.'
-              )}
-            </div>
-            <div class="card section">
-              <h3>Actividad reciente</h3>
-              <p>Cobros y pagos ordenados por fecha.</p>
-              ${this.simpleTable(
-                ['Fecha', 'Tipo', 'Tercero', 'Comprobante', 'Importe'],
-                actividad.map(row => [
-                  this.formatDate(row.fecha),
-                  row.tipo,
-                  this.escape(row.tercero || '—'),
-                  this.escape(row.ref || '—'),
-                  this.formatMoney(row.importe, row.moneda)
-                ]),
-                'Todavía no hay movimientos.'
-              )}
-            </div>
-          </div>
-        `;
-      },
-
-      renderClientes() {
-        const q = this.state.filters.clientes.toLowerCase();
-        const rows = this.state.clientes.filter(row => {
-          if (!q) return true;
-          return [row.razon_social, row.cuit, row.email].some(value => String(value || '').toLowerCase().includes(q));
-        });
-        return `
-          <div class="toolbar">
-            <input class="input" placeholder="Buscar por razón social, CUIT o email" value="${this.escapeAttr(this.state.filters.clientes)}" oninput="app.setFilter('clientes', this.value)">
-          </div>
-          <div class="card table-wrap">
-            ${this.simpleTable(
-              ['Razón social', 'CUIT', 'IVA', 'Email', 'Teléfono', 'Acciones'],
-              rows.map(row => [
-                this.escape(row.razon_social),
-                this.escape(row.cuit || '—'),
-                this.escape(row.condicion_iva),
-                this.escape(row.email || '—'),
-                this.escape(row.telefono || '—'),
-                `<div class="actions"><button class="btn" onclick="app.openClienteModal(${row.id})">Editar</button><button class="btn danger" onclick="app.deleteCliente(${row.id})">Eliminar</button></div>`
-              ]),
-              'No hay clientes cargados.'
-            )}
-          </div>
-        `;
-      },
-
-      renderProveedores() {
-        const q = this.state.filters.proveedores.toLowerCase();
-        const rows = this.state.proveedores.filter(row => {
-          if (!q) return true;
-          return [row.razon_social, row.cuit, row.email].some(value => String(value || '').toLowerCase().includes(q));
-        });
-        return `
-          <div class="toolbar">
-            <input class="input" placeholder="Buscar por razón social, CUIT o email" value="${this.escapeAttr(this.state.filters.proveedores)}" oninput="app.setFilter('proveedores', this.value)">
-          </div>
-          <div class="card table-wrap">
-            ${this.simpleTable(
-              ['Razón social', 'CUIT', 'IVA', 'Email', 'Teléfono', 'Acciones'],
-              rows.map(row => [
-                this.escape(row.razon_social),
-                this.escape(row.cuit || '—'),
-                this.escape(row.condicion_iva),
-                this.escape(row.email || '—'),
-                this.escape(row.telefono || '—'),
-                `<div class="actions"><button class="btn" onclick="app.openProveedorModal(${row.id})">Editar</button><button class="btn danger" onclick="app.deleteProveedor(${row.id})">Eliminar</button></div>`
-              ]),
-              'No hay proveedores cargados.'
-            )}
-          </div>
-        `;
-      },
-
-      renderFacturasVenta() {
-        const q = this.state.filters.fventas.toLowerCase();
-        const rows = this.state.facturasVenta.filter(row => {
-          if (!q) return true;
-          return [row.numero, row.cliente_nombre, row.cliente_cuit].some(value => String(value || '').toLowerCase().includes(q));
-        });
-        return `
-          <div class="toolbar">
-            <input class="input" placeholder="Buscar factura o cliente" value="${this.escapeAttr(this.state.filters.fventas)}" oninput="app.setFilter('fventas', this.value)">
-          </div>
-          <div class="card table-wrap">
-            ${this.simpleTable(
-              ['Fecha', 'Cliente', 'Número', 'Total', 'Cobrado', 'Saldo', 'Estado', 'Acciones'],
-              rows.map(row => [
-                this.formatDate(row.fecha),
-                this.escape(row.cliente_nombre),
-                this.escape(row.numero),
-                this.formatMoney(row.total, row.moneda),
-                this.formatMoney(row.total_cobrado, row.moneda),
-                this.formatMoney(row.saldo, row.moneda),
-                this.estadoBadge(row.estado),
-                `<div class="actions"><button class="btn" onclick="app.openFacturaVentaModal(${row.id})">Editar</button><button class="btn danger" onclick="app.deleteFacturaVenta(${row.id})">Eliminar</button></div>`
-              ]),
-              'No hay facturas de venta.'
-            )}
-          </div>
-        `;
-      },
-
-      renderFacturasCompra() {
-        const q = this.state.filters.fcompras.toLowerCase();
-        const rows = this.state.facturasCompra.filter(row => {
-          if (!q) return true;
-          return [row.numero, row.proveedor_nombre, row.proveedor_cuit].some(value => String(value || '').toLowerCase().includes(q));
-        });
-        return `
-          <div class="toolbar">
-            <input class="input" placeholder="Buscar factura o proveedor" value="${this.escapeAttr(this.state.filters.fcompras)}" oninput="app.setFilter('fcompras', this.value)">
-          </div>
-          <div class="card table-wrap">
-            ${this.simpleTable(
-              ['Fecha', 'Proveedor', 'Número', 'Total', 'Pagado', 'Saldo', 'Estado', 'Acciones'],
-              rows.map(row => [
-                this.formatDate(row.fecha),
-                this.escape(row.proveedor_nombre),
-                this.escape(row.numero),
-                this.formatMoney(row.total, row.moneda),
-                this.formatMoney(row.total_pagado, row.moneda),
-                this.formatMoney(row.saldo, row.moneda),
-                this.estadoBadge(row.estado),
-                `<div class="actions"><button class="btn" onclick="app.openFacturaCompraModal(${row.id})">Editar</button><button class="btn danger" onclick="app.deleteFacturaCompra(${row.id})">Eliminar</button></div>`
-              ]),
-              'No hay facturas de compra.'
-            )}
-          </div>
-        `;
-      },
-
-      renderCobros() {
-        const q = this.state.filters.cobros.toLowerCase();
-        const rows = this.state.cobros.filter(row => {
-          if (!q) return true;
-          return [row.factura_numero, row.cliente_nombre, row.referencia].some(value => String(value || '').toLowerCase().includes(q));
-        });
-        return `
-          <div class="toolbar">
-            <input class="input" placeholder="Buscar por factura, cliente o referencia" value="${this.escapeAttr(this.state.filters.cobros)}" oninput="app.setFilter('cobros', this.value)">
-          </div>
-          <div class="card table-wrap">
-            ${this.simpleTable(
-              ['Fecha', 'Cliente', 'Factura', 'Medio', 'Importe', 'Referencia', 'Acciones'],
-              rows.map(row => [
-                this.formatDate(row.fecha),
-                this.escape(row.cliente_nombre),
-                this.escape(row.factura_numero),
-                this.escape(this.medioPagoLabel(row.medio_pago)),
-                this.formatMoney(row.importe, row.moneda),
-                this.escape(row.referencia || '—'),
-                `<div class="actions"><button class="btn danger" onclick="app.deleteCobro(${row.id})">Eliminar</button></div>`
-              ]),
-              'No hay cobros cargados.'
-            )}
-          </div>
-        `;
-      },
-
-      renderPagos() {
-        const q = this.state.filters.pagos.toLowerCase();
-        const rows = this.state.pagos.filter(row => {
-          if (!q) return true;
-          return [row.factura_numero, row.proveedor_nombre, row.referencia].some(value => String(value || '').toLowerCase().includes(q));
-        });
-        return `
-          <div class="toolbar">
-            <input class="input" placeholder="Buscar por factura, proveedor o referencia" value="${this.escapeAttr(this.state.filters.pagos)}" oninput="app.setFilter('pagos', this.value)">
-          </div>
-          <div class="card table-wrap">
-            ${this.simpleTable(
-              ['Fecha', 'Proveedor', 'Factura', 'Medio', 'Importe', 'Referencia', 'Acciones'],
-              rows.map(row => [
-                this.formatDate(row.fecha),
-                this.escape(row.proveedor_nombre),
-                this.escape(row.factura_numero),
-                this.escape(this.medioPagoLabel(row.medio_pago)),
-                this.formatMoney(row.importe, row.moneda),
-                this.escape(row.referencia || '—'),
-                `<div class="actions"><button class="btn danger" onclick="app.deletePago(${row.id})">Eliminar</button></div>`
-              ]),
-              'No hay pagos cargados.'
-            )}
-          </div>
-        `;
-      },
-
-      renderReportes() {
-        const moneda = this.state.filters.reportMoneda;
-        const ventasAbiertas = this.state.facturasVenta.filter(row => row.moneda === moneda && row.estado !== 'pagada' && row.estado !== 'anulada');
-        const comprasAbiertas = this.state.facturasCompra.filter(row => row.moneda === moneda && row.estado !== 'pagada' && row.estado !== 'anulada');
-        const cobrosMes = this.sumCurrentMonth(this.state.cobros.filter(row => row.moneda === moneda));
-        const pagosMes = this.sumCurrentMonth(this.state.pagos.filter(row => row.moneda === moneda));
-
-        return `
-          <div class="toolbar">
-            <select class="select" style="max-width:220px" onchange="app.setFilter('reportMoneda', this.value)">
-              <option value="ARS" ${moneda === 'ARS' ? 'selected' : ''}>ARS</option>
-              <option value="USD" ${moneda === 'USD' ? 'selected' : ''}>USD</option>
-            </select>
-          </div>
-          <div class="grid cols-4 stats">
-            <div class="card"><div class="label">Saldo clientes</div><div class="value">${this.formatMoney(this.totalSaldo(ventasAbiertas), moneda)}</div><div class="sub">${ventasAbiertas.length} facturas abiertas</div></div>
-            <div class="card"><div class="label">Saldo proveedores</div><div class="value">${this.formatMoney(this.totalSaldo(comprasAbiertas), moneda)}</div><div class="sub">${comprasAbiertas.length} facturas abiertas</div></div>
-            <div class="card"><div class="label">Cobrado mes actual</div><div class="value">${this.formatMoney(cobrosMes, moneda)}</div><div class="sub">Sin mezclar monedas</div></div>
-            <div class="card"><div class="label">Pagado mes actual</div><div class="value">${this.formatMoney(pagosMes, moneda)}</div><div class="sub">Sin mezclar monedas</div></div>
-          </div>
-          <div class="grid cols-2" style="margin-top:16px">
-            <div class="card section">
-              <h3>Saldos por cliente</h3>
-              <p>Solo saldos abiertos en ${moneda}.</p>
-              ${this.simpleTable(
-                ['Cliente', 'Facturas abiertas', 'Saldo'],
-                this.aggregateByName(ventasAbiertas, 'cliente_nombre').map(row => [
-                  this.escape(row.nombre),
-                  String(row.cantidad),
-                  this.formatMoney(row.saldo, moneda)
-                ]),
-                'No hay saldo abierto para clientes en esa moneda.'
-              )}
-            </div>
-            <div class="card section">
-              <h3>Saldos por proveedor</h3>
-              <p>Solo saldos abiertos en ${moneda}.</p>
-              ${this.simpleTable(
-                ['Proveedor', 'Facturas abiertas', 'Saldo'],
-                this.aggregateByName(comprasAbiertas, 'proveedor_nombre').map(row => [
-                  this.escape(row.nombre),
-                  String(row.cantidad),
-                  this.formatMoney(row.saldo, moneda)
-                ]),
-                'No hay saldo abierto para proveedores en esa moneda.'
-              )}
-            </div>
-          </div>
-        `;
-      },
-
-      simpleTable(headers, rows, emptyMessage) {
-        if (!rows.length) {
-          return `<div class="empty">${this.escape(emptyMessage)}</div>`;
-        }
-        return `
-          <table>
-            <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
-            <tbody>
-              ${rows.map(cols => `<tr>${cols.map(value => `<td>${value}</td>`).join('')}</tr>`).join('')}
-            </tbody>
-          </table>
-        `;
-      },
-
-      openConfigModal() {
-        return;
-      },
-
-      saveConfigFromModal() {
-        return;
-      },
-
-      openClienteModal(id = null) {
-        const row = id ? this.state.clientes.find(item => item.id === id) : null;
-        this.openModal({
-          title: row ? 'Editar cliente' : 'Nuevo cliente',
-          subtitle: 'Los borrados quedan bloqueados si el cliente tiene facturas o cobros asociados.',
-          body: `
-            <div class="form-grid">
-              <div class="form-field full"><label>Razón social</label><input id="cliente-razon" class="input" value="${this.escapeAttr(row?.razon_social || '')}"></div>
-              <div class="form-field"><label>Nombre comercial</label><input id="cliente-nombre" class="input" value="${this.escapeAttr(row?.nombre_comercial || '')}"></div>
-              <div class="form-field"><label>CUIT</label><input id="cliente-cuit" class="input" value="${this.escapeAttr(row?.cuit || '')}"></div>
-              <div class="form-field"><label>Condición IVA</label>
-                <select id="cliente-iva" class="select">${this.ivaOptions(row?.condicion_iva || 'RI')}</select>
-              </div>
-              <div class="form-field"><label>Email</label><input id="cliente-email" class="input" value="${this.escapeAttr(row?.email || '')}"></div>
-              <div class="form-field"><label>Teléfono</label><input id="cliente-telefono" class="input" value="${this.escapeAttr(row?.telefono || '')}"></div>
-              <div class="form-field full"><label>Dirección</label><input id="cliente-direccion" class="input" value="${this.escapeAttr(row?.direccion || '')}"></div>
-              <div class="form-field full"><label>Observaciones</label><textarea id="cliente-observaciones" class="textarea">${this.escape(row?.observaciones || '')}</textarea></div>
-            </div>
-          `,
-          footer: `
-            <button class="btn" onclick="app.closeModal()">Cancelar</button>
-            <button class="btn primary" onclick="app.saveCliente(${id || 'null'})">Guardar</button>
-          `
-        });
-      },
-
-      async saveCliente(id = null) {
-        try {
-          const payload = {
-            razon_social: this.requiredValue('cliente-razon', 'La razón social es obligatoria.'),
-            nombre_comercial: this.optionalValue('cliente-nombre'),
-            cuit: this.optionalValue('cliente-cuit'),
-            condicion_iva: document.getElementById('cliente-iva').value,
-            email: this.validatedEmail('cliente-email'),
-            telefono: this.optionalValue('cliente-telefono'),
-            direccion: this.optionalValue('cliente-direccion'),
-            observaciones: this.optionalValue('cliente-observaciones')
-          };
-          id ? await this.update('clientes', id, payload) : await this.insert('clientes', payload);
-          this.closeModal();
-          this.showToast('Cliente guardado.');
-          await this.refresh();
-        } catch (error) {
-          this.handleError(error);
-        }
-      },
-
-      async deleteCliente(id) {
-        if (!confirm('Vas a eliminar el cliente. Si tiene movimientos relacionados, la base lo va a bloquear.')) return;
-        try {
-          await this.remove('clientes', id);
-          this.showToast('Cliente eliminado.');
-          await this.refresh();
-        } catch (error) {
-          this.handleError(error);
-        }
-      },
-
-      openProveedorModal(id = null) {
-        const row = id ? this.state.proveedores.find(item => item.id === id) : null;
-        this.openModal({
-          title: row ? 'Editar proveedor' : 'Nuevo proveedor',
-          subtitle: 'Los borrados quedan bloqueados si el proveedor tiene facturas o pagos asociados.',
-          body: `
-            <div class="form-grid">
-              <div class="form-field full"><label>Razón social</label><input id="prov-razon" class="input" value="${this.escapeAttr(row?.razon_social || '')}"></div>
-              <div class="form-field"><label>Nombre comercial</label><input id="prov-nombre" class="input" value="${this.escapeAttr(row?.nombre_comercial || '')}"></div>
-              <div class="form-field"><label>CUIT</label><input id="prov-cuit" class="input" value="${this.escapeAttr(row?.cuit || '')}"></div>
-              <div class="form-field"><label>Condición IVA</label>
-                <select id="prov-iva" class="select">${this.ivaOptions(row?.condicion_iva || 'RI')}</select>
-              </div>
-              <div class="form-field"><label>Email</label><input id="prov-email" class="input" value="${this.escapeAttr(row?.email || '')}"></div>
-              <div class="form-field"><label>Teléfono</label><input id="prov-telefono" class="input" value="${this.escapeAttr(row?.telefono || '')}"></div>
-              <div class="form-field full"><label>Dirección</label><input id="prov-direccion" class="input" value="${this.escapeAttr(row?.direccion || '')}"></div>
-              <div class="form-field full"><label>Observaciones</label><textarea id="prov-observaciones" class="textarea">${this.escape(row?.observaciones || '')}</textarea></div>
-            </div>
-          `,
-          footer: `
-            <button class="btn" onclick="app.closeModal()">Cancelar</button>
-            <button class="btn primary" onclick="app.saveProveedor(${id || 'null'})">Guardar</button>
-          `
-        });
-      },
-
-      async saveProveedor(id = null) {
-        try {
-          const payload = {
-            razon_social: this.requiredValue('prov-razon', 'La razón social es obligatoria.'),
-            nombre_comercial: this.optionalValue('prov-nombre'),
-            cuit: this.optionalValue('prov-cuit'),
-            condicion_iva: document.getElementById('prov-iva').value,
-            email: this.validatedEmail('prov-email'),
-            telefono: this.optionalValue('prov-telefono'),
-            direccion: this.optionalValue('prov-direccion'),
-            observaciones: this.optionalValue('prov-observaciones')
-          };
-          id ? await this.update('proveedores', id, payload) : await this.insert('proveedores', payload);
-          this.closeModal();
-          this.showToast('Proveedor guardado.');
-          await this.refresh();
-        } catch (error) {
-          this.handleError(error);
-        }
-      },
-
-      async deleteProveedor(id) {
-        if (!confirm('Vas a eliminar el proveedor. Si tiene movimientos relacionados, la base lo va a bloquear.')) return;
-        try {
-          await this.remove('proveedores', id);
-          this.showToast('Proveedor eliminado.');
-          await this.refresh();
-        } catch (error) {
-          this.handleError(error);
-        }
-      },
-
-      openFacturaVentaModal(id = null) {
-        const row = id ? this.state.facturasVenta.find(item => item.id === id) : null;
-        const options = this.state.clientes.map(item => `<option value="${item.id}" ${item.id === row?.cliente_id ? 'selected' : ''}>${this.escape(item.razon_social)}</option>`).join('');
-        this.openModal({
-          title: row ? 'Editar factura de venta' : 'Nueva factura de venta',
-          subtitle: 'El saldo y el estado no se editan acá: los recalcula SQL.',
-          body: `
-            <div class="form-grid">
-              <div class="form-field"><label>Número</label><input id="fv-numero" class="input" value="${this.escapeAttr(row?.numero || '')}"></div>
-              <div class="form-field"><label>Cliente</label><select id="fv-cliente" class="select"><option value="">Seleccionar</option>${options}</select></div>
-              <div class="form-field"><label>Fecha</label><input id="fv-fecha" type="date" class="input" value="${this.escapeAttr(row?.fecha || this.today())}"></div>
-              <div class="form-field"><label>Vencimiento</label><input id="fv-vencimiento" type="date" class="input" value="${this.escapeAttr(row?.fecha_vencimiento || '')}"></div>
-              <div class="form-field"><label>Moneda</label><select id="fv-moneda" class="select">${this.monedaOptions(row?.moneda || 'ARS')}</select></div>
-              <div class="form-field"><label>Total</label><input id="fv-total" type="number" step="0.01" min="0.01" class="input" value="${this.escapeAttr(row?.total || '')}"></div>
-              <div class="form-field full"><label>Observaciones</label><textarea id="fv-observaciones" class="textarea">${this.escape(row?.observaciones || '')}</textarea></div>
-            </div>
-          `,
-          footer: `
-            <button class="btn" onclick="app.closeModal()">Cancelar</button>
-            <button class="btn primary" onclick="app.saveFacturaVenta(${id || 'null'})">Guardar</button>
-          `
-        });
-      },
-
-      async saveFacturaVenta(id = null) {
-        try {
-          const payload = {
-            numero: this.requiredValue('fv-numero', 'El número de factura es obligatorio.'),
-            cliente_id: this.requiredId('fv-cliente', 'Seleccioná un cliente.'),
-            fecha: this.requiredValue('fv-fecha', 'La fecha es obligatoria.'),
-            fecha_vencimiento: this.optionalValue('fv-vencimiento') || null,
-            moneda: document.getElementById('fv-moneda').value,
-            total: this.requiredAmount('fv-total', 'El total debe ser mayor a 0.'),
-            observaciones: this.optionalValue('fv-observaciones')
-          };
-          id ? await this.update('facturas_venta', id, payload) : await this.insert('facturas_venta', payload);
-          this.closeModal();
-          this.showToast('Factura de venta guardada.');
-          await this.refresh();
-        } catch (error) {
-          this.handleError(error);
-        }
-      },
-
-      async deleteFacturaVenta(id) {
-        if (!confirm('Vas a eliminar la factura. Si tiene cobros asociados, la base lo va a bloquear.')) return;
-        try {
-          await this.remove('facturas_venta', id);
-          this.showToast('Factura de venta eliminada.');
-          await this.refresh();
-        } catch (error) {
-          this.handleError(error);
-        }
-      },
-
-      openFacturaCompraModal(id = null) {
-        const row = id ? this.state.facturasCompra.find(item => item.id === id) : null;
-        const options = this.state.proveedores.map(item => `<option value="${item.id}" ${item.id === row?.proveedor_id ? 'selected' : ''}>${this.escape(item.razon_social)}</option>`).join('');
-        this.openModal({
-          title: row ? 'Editar factura de compra' : 'Nueva factura de compra',
-          subtitle: 'El saldo y el estado no se tocan en frontend.',
-          body: `
-            <div class="form-grid">
-              <div class="form-field"><label>Número</label><input id="fc-numero" class="input" value="${this.escapeAttr(row?.numero || '')}"></div>
-              <div class="form-field"><label>Proveedor</label><select id="fc-proveedor" class="select"><option value="">Seleccionar</option>${options}</select></div>
-              <div class="form-field"><label>Fecha</label><input id="fc-fecha" type="date" class="input" value="${this.escapeAttr(row?.fecha || this.today())}"></div>
-              <div class="form-field"><label>Vencimiento</label><input id="fc-vencimiento" type="date" class="input" value="${this.escapeAttr(row?.fecha_vencimiento || '')}"></div>
-              <div class="form-field"><label>Moneda</label><select id="fc-moneda" class="select">${this.monedaOptions(row?.moneda || 'ARS')}</select></div>
-              <div class="form-field"><label>Total</label><input id="fc-total" type="number" step="0.01" min="0.01" class="input" value="${this.escapeAttr(row?.total || '')}"></div>
-              <div class="form-field full"><label>Observaciones</label><textarea id="fc-observaciones" class="textarea">${this.escape(row?.observaciones || '')}</textarea></div>
-            </div>
-          `,
-          footer: `
-            <button class="btn" onclick="app.closeModal()">Cancelar</button>
-            <button class="btn primary" onclick="app.saveFacturaCompra(${id || 'null'})">Guardar</button>
-          `
-        });
-      },
-
-      async saveFacturaCompra(id = null) {
-        try {
-          const payload = {
-            numero: this.requiredValue('fc-numero', 'El número de factura es obligatorio.'),
-            proveedor_id: this.requiredId('fc-proveedor', 'Seleccioná un proveedor.'),
-            fecha: this.requiredValue('fc-fecha', 'La fecha es obligatoria.'),
-            fecha_vencimiento: this.optionalValue('fc-vencimiento') || null,
-            moneda: document.getElementById('fc-moneda').value,
-            total: this.requiredAmount('fc-total', 'El total debe ser mayor a 0.'),
-            observaciones: this.optionalValue('fc-observaciones')
-          };
-          id ? await this.update('facturas_compra', id, payload) : await this.insert('facturas_compra', payload);
-          this.closeModal();
-          this.showToast('Factura de compra guardada.');
-          await this.refresh();
-        } catch (error) {
-          this.handleError(error);
-        }
-      },
-
-      async deleteFacturaCompra(id) {
-        if (!confirm('Vas a eliminar la factura. Si tiene pagos asociados, la base lo va a bloquear.')) return;
-        try {
-          await this.remove('facturas_compra', id);
-          this.showToast('Factura de compra eliminada.');
-          await this.refresh();
-        } catch (error) {
-          this.handleError(error);
-        }
-      },
-
-      openCobroModal() {
-        const options = this.state.facturasVenta
-          .filter(row => Number(row.saldo || 0) > 0 && row.estado !== 'anulada')
-          .map(row => `<option value="${row.id}" data-cliente="${this.escapeAttr(row.cliente_nombre)}" data-saldo="${row.saldo}" data-moneda="${row.moneda}">${this.escape(row.numero)} · ${this.escape(row.cliente_nombre)} · ${this.formatMoney(row.saldo, row.moneda)}</option>`)
-          .join('');
-        this.openModal({
-          title: 'Registrar cobro',
-          subtitle: 'La validación final corre en la RPC registrar_cobro.',
-          body: `
-            <div class="form-grid">
-              <div class="form-field full"><label>Factura</label><select id="cobro-factura" class="select" onchange="app.syncCobroInfo()"><option value="">Seleccionar factura abierta</option>${options}</select></div>
-              <div class="form-field"><label>Cliente</label><input id="cobro-cliente" class="input" readonly></div>
-              <div class="form-field"><label>Saldo disponible</label><input id="cobro-saldo" class="input" readonly></div>
-              <div class="form-field"><label>Fecha</label><input id="cobro-fecha" type="date" class="input" value="${this.today()}"></div>
-              <div class="form-field"><label>Importe</label><input id="cobro-importe" type="number" step="0.01" min="0.01" class="input"></div>
-              <div class="form-field"><label>Medio de pago</label><select id="cobro-medio" class="select">${this.medioPagoOptions('transferencia')}</select></div>
-              <div class="form-field"><label>Referencia</label><input id="cobro-referencia" class="input"></div>
-              <div class="form-field full"><label>Observaciones</label><textarea id="cobro-observaciones" class="textarea"></textarea></div>
-            </div>
-          `,
-          footer: `
-            <button class="btn" onclick="app.closeModal()">Cancelar</button>
-            <button class="btn primary" onclick="app.saveCobro()">Registrar</button>
-          `
-        });
-      },
-
-      syncCobroInfo() {
-        const select = document.getElementById('cobro-factura');
-        const option = select.options[select.selectedIndex];
-        document.getElementById('cobro-cliente').value = option?.dataset?.cliente || '';
-        const saldo = option?.dataset?.saldo;
-        const moneda = option?.dataset?.moneda || 'ARS';
-        document.getElementById('cobro-saldo').value = saldo ? this.formatMoney(Number(saldo), moneda) : '';
-      },
-
-      async saveCobro() {
-        try {
-          const facturaId = this.requiredId('cobro-factura', 'Seleccioná una factura para cobrar.');
-          const factura = this.state.facturasVenta.find(row => row.id === facturaId);
-          if (!factura) throw new Error('La factura seleccionada no existe en memoria.');
-          const importe = this.requiredAmount('cobro-importe', 'El importe del cobro debe ser mayor a 0.');
-          if (importe > Number(factura.saldo || 0)) {
-            throw new Error('El importe excede el saldo disponible.');
-          }
-          await this.rpc('registrar_cobro', {
-            p_factura_id: facturaId,
-            p_fecha: this.requiredValue('cobro-fecha', 'La fecha del cobro es obligatoria.'),
-            p_importe: importe,
-            p_medio_pago: document.getElementById('cobro-medio').value,
-            p_referencia: this.optionalValue('cobro-referencia') || null,
-            p_observaciones: this.optionalValue('cobro-observaciones') || null
-          });
-          this.closeModal();
-          this.showToast('Cobro registrado.');
-          await this.refresh();
-        } catch (error) {
-          this.handleError(error);
-        }
-      },
-
-      async deleteCobro(id) {
-        if (!confirm('Vas a eliminar el cobro. La factura se va a recalcular en SQL.')) return;
-        try {
-          await this.rpc('eliminar_cobro', { p_cobro_id: id });
-          this.showToast('Cobro eliminado.');
-          await this.refresh();
-        } catch (error) {
-          this.handleError(error);
-        }
-      },
-
-      openPagoModal() {
-        const options = this.state.facturasCompra
-          .filter(row => Number(row.saldo || 0) > 0 && row.estado !== 'anulada')
-          .map(row => `<option value="${row.id}" data-proveedor="${this.escapeAttr(row.proveedor_nombre)}" data-saldo="${row.saldo}" data-moneda="${row.moneda}">${this.escape(row.numero)} · ${this.escape(row.proveedor_nombre)} · ${this.formatMoney(row.saldo, row.moneda)}</option>`)
-          .join('');
-        this.openModal({
-          title: 'Registrar pago',
-          subtitle: 'La validación final corre en la RPC registrar_pago.',
-          body: `
-            <div class="form-grid">
-              <div class="form-field full"><label>Factura</label><select id="pago-factura" class="select" onchange="app.syncPagoInfo()"><option value="">Seleccionar factura abierta</option>${options}</select></div>
-              <div class="form-field"><label>Proveedor</label><input id="pago-proveedor" class="input" readonly></div>
-              <div class="form-field"><label>Saldo disponible</label><input id="pago-saldo" class="input" readonly></div>
-              <div class="form-field"><label>Fecha</label><input id="pago-fecha" type="date" class="input" value="${this.today()}"></div>
-              <div class="form-field"><label>Importe</label><input id="pago-importe" type="number" step="0.01" min="0.01" class="input"></div>
-              <div class="form-field"><label>Medio de pago</label><select id="pago-medio" class="select">${this.medioPagoOptions('transferencia')}</select></div>
-              <div class="form-field"><label>Referencia</label><input id="pago-referencia" class="input"></div>
-              <div class="form-field full"><label>Observaciones</label><textarea id="pago-observaciones" class="textarea"></textarea></div>
-            </div>
-          `,
-          footer: `
-            <button class="btn" onclick="app.closeModal()">Cancelar</button>
-            <button class="btn primary" onclick="app.savePago()">Registrar</button>
-          `
-        });
-      },
-
-      syncPagoInfo() {
-        const select = document.getElementById('pago-factura');
-        const option = select.options[select.selectedIndex];
-        document.getElementById('pago-proveedor').value = option?.dataset?.proveedor || '';
-        const saldo = option?.dataset?.saldo;
-        const moneda = option?.dataset?.moneda || 'ARS';
-        document.getElementById('pago-saldo').value = saldo ? this.formatMoney(Number(saldo), moneda) : '';
-      },
-
-      async savePago() {
-        try {
-          const facturaId = this.requiredId('pago-factura', 'Seleccioná una factura para pagar.');
-          const factura = this.state.facturasCompra.find(row => row.id === facturaId);
-          if (!factura) throw new Error('La factura seleccionada no existe en memoria.');
-          const importe = this.requiredAmount('pago-importe', 'El importe del pago debe ser mayor a 0.');
-          if (importe > Number(factura.saldo || 0)) {
-            throw new Error('El importe excede el saldo disponible.');
-          }
-          await this.rpc('registrar_pago', {
-            p_factura_id: facturaId,
-            p_fecha: this.requiredValue('pago-fecha', 'La fecha del pago es obligatoria.'),
-            p_importe: importe,
-            p_medio_pago: document.getElementById('pago-medio').value,
-            p_referencia: this.optionalValue('pago-referencia') || null,
-            p_observaciones: this.optionalValue('pago-observaciones') || null
-          });
-          this.closeModal();
-          this.showToast('Pago registrado.');
-          await this.refresh();
-        } catch (error) {
-          this.handleError(error);
-        }
-      },
-
-      async deletePago(id) {
-        if (!confirm('Vas a eliminar el pago. La factura se va a recalcular en SQL.')) return;
-        try {
-          await this.rpc('eliminar_pago', { p_pago_id: id });
-          this.showToast('Pago eliminado.');
-          await this.refresh();
-        } catch (error) {
-          this.handleError(error);
-        }
-      },
-
-      openModal({ title, subtitle = '', body, footer = '' }) {
-        document.getElementById('modal-title').textContent = title;
-        document.getElementById('modal-subtitle').textContent = subtitle;
-        document.getElementById('modal-body').innerHTML = body;
-        document.getElementById('modal-footer').innerHTML = footer;
-        document.getElementById('modal-backdrop').classList.add('open');
-      },
-
-      closeModal() {
-        document.getElementById('modal-backdrop').classList.remove('open');
-      },
-
-      setFilter(key, value) {
-        this.state.filters[key] = value;
-        this.renderView();
-      },
-
-      requiredValue(id, message) {
-        const value = document.getElementById(id).value.trim();
-        if (!value) throw new Error(message);
-        return value;
-      },
-
-      optionalValue(id) {
-        return document.getElementById(id).value.trim();
-      },
-
-      requiredId(id, message) {
-        const raw = document.getElementById(id).value;
-        const value = Number(raw);
-        if (!Number.isInteger(value) || value <= 0) throw new Error(message);
-        return value;
-      },
-
-      requiredAmount(id, message) {
-        const value = Number(document.getElementById(id).value);
-        if (!Number.isFinite(value) || value <= 0) throw new Error(message);
-        return Number(value.toFixed(2));
-      },
-
-      validatedEmail(id) {
-        const value = this.optionalValue(id);
-        if (!value) return null;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(value)) throw new Error('El email no tiene un formato válido.');
-        return value;
-      },
-
-      ivaOptions(selected) {
-        return [
-          ['RI', 'Responsable inscripto'],
-          ['MO', 'Monotributista'],
-          ['EX', 'Exento'],
-          ['CF', 'Consumidor final']
-        ].map(([value, label]) => `<option value="${value}" ${value === selected ? 'selected' : ''}>${label}</option>`).join('');
-      },
-
-      monedaOptions(selected) {
-        return ['ARS', 'USD'].map(value => `<option value="${value}" ${value === selected ? 'selected' : ''}>${value}</option>`).join('');
-      },
-
-      medioPagoOptions(selected) {
-        return [
-          ['transferencia', 'Transferencia'],
-          ['cheque', 'Cheque'],
-          ['efectivo', 'Efectivo'],
-          ['tarjeta', 'Tarjeta'],
-          ['otro', 'Otro']
-        ].map(([value, label]) => `<option value="${value}" ${value === selected ? 'selected' : ''}>${label}</option>`).join('');
-      },
-
-      medioPagoLabel(value) {
-        return ({
-          transferencia: 'Transferencia',
-          cheque: 'Cheque',
-          efectivo: 'Efectivo',
-          tarjeta: 'Tarjeta',
-          otro: 'Otro'
-        })[value] || value || '—';
-      },
-
-      totalSaldo(rows) {
-        return rows.reduce((acc, row) => acc + Number(row.saldo || 0), 0);
-      },
-
-      aggregateByName(rows, field) {
-        const map = new Map();
-        rows.forEach(row => {
-          const key = row[field] || '—';
-          const current = map.get(key) || { nombre: key, cantidad: 0, saldo: 0 };
-          current.cantidad += 1;
-          current.saldo += Number(row.saldo || 0);
-          map.set(key, current);
-        });
-        return Array.from(map.values()).sort((a, b) => b.saldo - a.saldo);
-      },
-
-      countCurrentMonth(rows) {
-        const prefix = this.today().slice(0, 7);
-        return rows.filter(row => String(row.fecha || '').startsWith(prefix)).length;
-      },
-
-      sumCurrentMonth(rows) {
-        const prefix = this.today().slice(0, 7);
-        return rows.filter(row => String(row.fecha || '').startsWith(prefix)).reduce((acc, row) => acc + Number(row.importe || 0), 0);
-      },
-
-      today() {
-        return new Date().toISOString().slice(0, 10);
-      },
-
-      formatDate(value) {
-        if (!value) return '—';
-        const [y, m, d] = String(value).slice(0, 10).split('-');
-        return `${d}/${m}/${y}`;
-      },
-
-      formatMoney(value, moneda = 'ARS') {
-        const prefix = moneda === 'USD' ? 'U$S ' : '$ ';
-        return prefix + Number(value || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      },
-
-      escape(value) {
-        return String(value ?? '')
-          .replaceAll('&', '&amp;')
-          .replaceAll('<', '&lt;')
-          .replaceAll('>', '&gt;')
-          .replaceAll('"', '&quot;')
-          .replaceAll("'", '&#39;');
-      },
-
-      escapeAttr(value) {
-        return this.escape(value).replaceAll('`', '&#96;');
-      },
-
-      estadoBadge(value) {
-        const label = ({ pendiente: 'Pendiente', parcial: 'Parcial', pagada: 'Pagada', anulada: 'Anulada' })[value] || value || '—';
-        return `<span class="badge ${this.escapeAttr(value || 'anulada')}">${this.escape(label)}</span>`;
-      },
-
-      showToast(message) {
-        const node = document.getElementById('toast');
-        node.textContent = message;
-        node.classList.add('show');
-        clearTimeout(this.toastTimer);
-        this.toastTimer = setTimeout(() => node.classList.remove('show'), 2600);
-      },
-
-      showAuthWarning(message) {
-        const node = document.getElementById('auth-warning');
-        node.textContent = message;
-        node.classList.remove('hidden');
-      },
-
-      hideAuthWarning() {
-        document.getElementById('auth-warning').classList.add('hidden');
-      },
-
-      handleError(error) {
-        console.error(error);
-        const message = error instanceof Error ? error.message : String(error);
-        alert(message);
-      }
-    };
-
-    document.getElementById('modal-backdrop').addEventListener('click', event => {
-      if (event.target.id === 'modal-backdrop') {
-        app.closeModal();
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ================================================================
+// CONFIG
+// ================================================================
+const DEFAULT_CONFIG = {
+  supabaseUrl: 'https://ivlvlsgkffsgetjcbzuo.supabase.co',
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2bHZsc2drZmZzZ2V0amNienVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjM2MzUsImV4cCI6MjA5MDAzOTYzNX0.wSBnzVFxEXmN4bsFNDA9C-XGGvb5f9cMC1SqE-veHJI',
+};
+
+// ================================================================
+// APP
+// ================================================================
+const app = {
+  config: { ...DEFAULT_CONFIG },
+  state: {
+    currentView: 'dashboard',
+    clientes: [],
+    proveedores: [],
+    productos: [],
+    facturasVenta: [],
+    facturasCompra: [],
+    cobros: [],
+    pagos: [],
+    notificaciones: [],
+    filters: {
+      clientes: '', proveedores: '', productos: '',
+      fventas: '', fcompras: '', cobros: '', pagos: '',
+      reportMoneda: 'ARS',
+      fventas_desde: '', fventas_hasta: '',
+      fcompras_desde: '', fcompras_hasta: '',
+      cobros_desde: '', cobros_hasta: '',
+      pagos_desde: '', pagos_hasta: '',
+    }
+  },
+  views: [
+    { key: 'dashboard',   icon: '📊', title: 'Dashboard',           action: null },
+    { key: 'clientes',    icon: '👤', title: 'Clientes',             action: 'Nuevo cliente' },
+    { key: 'fventas',     icon: '🧾', title: 'Facturas de venta',    action: 'Nueva factura' },
+    { key: 'cobros',      icon: '💰', title: 'Cobros',               action: 'Nuevo cobro' },
+    { key: 'proveedores', icon: '🏭', title: 'Proveedores',          action: 'Nuevo proveedor' },
+    { key: 'fcompras',    icon: '📦', title: 'Facturas de compra',   action: 'Nueva factura' },
+    { key: 'pagos',       icon: '💳', title: 'Pagos',                action: 'Nuevo pago' },
+    { key: 'productos',   icon: '🏷️',  title: 'Productos',            action: 'Nuevo producto' },
+    { key: 'reportes',    icon: '📈', title: 'Reportes',             action: null },
+  ],
+
+  // ── INIT ──────────────────────────────────────────────────────
+  init() {
+    this.loadTheme();
+    this.renderNav();
+    this.updateTopbar();
+    this.renderView();
+    this.refresh().catch(err => this.handleError(err));
+    // cerrar panel notificaciones al hacer click afuera
+    document.addEventListener('click', e => {
+      const panel = document.getElementById('notif-panel');
+      const btn = document.getElementById('notif-btn');
+      if (!panel.contains(e.target) && !btn.contains(e.target)) {
+        this.closeNotifPanel();
       }
     });
+  },
 
-    app.init();
-  </script>
+  // ── THEME ─────────────────────────────────────────────────────
+  loadTheme() {
+    const saved = localStorage.getItem('innovexa-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    this.updateThemeLabel(saved);
+  },
+  toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('innovexa-theme', next);
+    this.updateThemeLabel(next);
+  },
+  updateThemeLabel(theme) {
+    const el = document.getElementById('theme-label');
+    if (el) el.textContent = theme === 'dark' ? '🌙 Tema oscuro' : '☀️ Tema claro';
+  },
+
+  // ── API ───────────────────────────────────────────────────────
+  get headers() {
+    return {
+      'Content-Type': 'application/json',
+      apikey: this.config.supabaseAnonKey,
+      Authorization: `Bearer ${this.config.supabaseAnonKey}`
+    };
+  },
+  get configured() {
+    return this.config.supabaseUrl && this.config.supabaseAnonKey;
+  },
+  async api(path, options = {}) {
+    if (!this.configured) throw new Error('Supabase no configurado.');
+    const res = await fetch(`${this.config.supabaseUrl}${path}`, {
+      method: options.method || 'GET',
+      headers: { ...this.headers, ...(options.headers || {}) },
+      body: options.body ? JSON.stringify(options.body) : undefined
+    });
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+    if (!res.ok) {
+      const msg = data?.message || data?.hint || data?.details || `Error HTTP ${res.status}`;
+      throw new Error(msg);
+    }
+    return data;
+  },
+  async select(resource, query) { return this.api(`/rest/v1/${resource}?${query}`, { method: 'GET' }); },
+  async insert(resource, payload) {
+    return this.api(`/rest/v1/${resource}`, {
+      method: 'POST', headers: { Prefer: 'return=representation' }, body: payload
+    }).then(rows => Array.isArray(rows) ? rows[0] : rows);
+  },
+  async update(resource, id, payload) {
+    return this.api(`/rest/v1/${resource}?id=eq.${id}`, {
+      method: 'PATCH', headers: { Prefer: 'return=representation' }, body: payload
+    }).then(rows => Array.isArray(rows) ? rows[0] : rows);
+  },
+  async remove(resource, id) {
+    return this.api(`/rest/v1/${resource}?id=eq.${id}`, {
+      method: 'DELETE', headers: { Prefer: 'return=representation' }
+    });
+  },
+  async rpc(name, payload) {
+    return this.api(`/rest/v1/rpc/${name}`, { method: 'POST', body: payload });
+  },
+
+  // ── REFRESH ───────────────────────────────────────────────────
+  async refresh() {
+    if (!this.configured) {
+      this.showAuthWarning('Supabase no configurado.');
+      this.renderView(); this.updateSidebar(); return;
+    }
+    this.hideAuthWarning();
+    const [clientes, proveedores, facturasVenta, facturasCompra, cobros, pagos] = await Promise.all([
+      this.select('clientes', 'select=*&order=razon_social.asc'),
+      this.select('proveedores', 'select=*&order=razon_social.asc'),
+      this.select('v_facturas_venta', 'select=*&order=fecha.desc'),
+      this.select('v_facturas_compra', 'select=*&order=fecha.desc'),
+      this.select('v_cobros', 'select=*&order=fecha.desc'),
+      this.select('v_pagos', 'select=*&order=fecha.desc'),
+    ]);
+    this.state.clientes = clientes || [];
+    this.state.proveedores = proveedores || [];
+    this.state.facturasVenta = facturasVenta || [];
+    this.state.facturasCompra = facturasCompra || [];
+    this.state.cobros = cobros || [];
+    this.state.pagos = pagos || [];
+
+    // Intentar cargar productos (tabla opcional)
+    try {
+      const productos = await this.select('productos', 'select=*&order=nombre.asc');
+      this.state.productos = productos || [];
+    } catch { this.state.productos = []; }
+
+    this.calcNotificaciones();
+    this.updateSidebar();
+    this.renderView();
+  },
+
+  // ── NOTIFICACIONES DE VENCIMIENTO ─────────────────────────────
+  calcNotificaciones() {
+    const hoy = new Date(); hoy.setHours(0,0,0,0);
+    const notifs = [];
+    const dias = row => {
+      if (!row.fecha_vencimiento) return null;
+      const d = new Date(row.fecha_vencimiento);
+      return Math.ceil((d - hoy) / 86400000);
+    };
+    [...this.state.facturasVenta, ...this.state.facturasCompra].forEach(row => {
+      if (row.estado === 'pagada' || row.estado === 'anulada') return;
+      const d = dias(row);
+      if (d === null) return;
+      const tipo = row.cliente_nombre ? 'venta' : 'compra';
+      const nombre = row.cliente_nombre || row.proveedor_nombre || '—';
+      if (d < 0) notifs.push({ urgencia: 'red', texto: `Vencida hace ${Math.abs(d)} días`, sub: `${row.numero} · ${nombre} · ${this.formatMoney(row.saldo, row.moneda)}` });
+      else if (d <= 7) notifs.push({ urgencia: 'amber', texto: `Vence en ${d} días`, sub: `${row.numero} · ${nombre} · ${this.formatMoney(row.saldo, row.moneda)}` });
+    });
+    notifs.sort((a, b) => (a.urgencia === 'red' ? -1 : 1));
+    this.state.notificaciones = notifs;
+    const badge = document.getElementById('notif-badge');
+    if (badge) {
+      if (notifs.length > 0) { badge.textContent = notifs.length; badge.classList.remove('hidden'); }
+      else badge.classList.add('hidden');
+    }
+    const list = document.getElementById('notif-list');
+    if (list) {
+      if (notifs.length === 0) {
+        list.innerHTML = '<div class="empty" style="padding:24px"><p>Sin vencimientos próximos 🎉</p></div>';
+      } else {
+        list.innerHTML = notifs.map(n => `
+          <div class="notif-item">
+            <div class="notif-dot ${n.urgencia}"></div>
+            <div>
+              <div class="notif-text">${this.escape(n.texto)}</div>
+              <div class="notif-sub">${this.escape(n.sub)}</div>
+            </div>
+          </div>`).join('');
+      }
+    }
+  },
+  toggleNotifPanel() {
+    document.getElementById('notif-panel').classList.toggle('open');
+  },
+  closeNotifPanel() {
+    document.getElementById('notif-panel').classList.remove('open');
+  },
+
+  // ── NAV ───────────────────────────────────────────────────────
+  renderNav() {
+    const nav = document.getElementById('nav');
+    if (!nav) return;
+    nav.innerHTML = this.views.map(v => `
+      <button class="nav-btn ${this.state.currentView === v.key ? 'active' : ''}" onclick="app.setView('${v.key}')">
+        <span class="nav-left"><span class="nav-icon">${v.icon}</span>${v.title}</span>
+        <span class="nav-count">${this.navCount(v.key)}</span>
+      </button>`).join('');
+  },
+  navCount(key) {
+    const m = {
+      dashboard: '—', clientes: this.state.clientes.length,
+      proveedores: this.state.proveedores.length, productos: this.state.productos.length,
+      fventas: this.state.facturasVenta.length, fcompras: this.state.facturasCompra.length,
+      cobros: this.state.cobros.length, pagos: this.state.pagos.length, reportes: '—'
+    };
+    return m[key] ?? '—';
+  },
+  setView(key) {
+    this.state.currentView = key;
+    this.renderNav();
+    this.updateTopbar();
+    this.renderView();
+  },
+
+  // ── TOPBAR ────────────────────────────────────────────────────
+  updateTopbar() {
+    const v = this.views.find(x => x.key === this.state.currentView);
+    document.getElementById('page-title').textContent = v?.title || 'Innovexa ERP';
+    document.getElementById('page-subtitle').textContent = this.getSubtitle(this.state.currentView);
+    const btn = document.getElementById('primary-action');
+    if (!v?.action) btn.classList.add('hidden');
+    else { btn.classList.remove('hidden'); btn.textContent = v.action; }
+  },
+  getSubtitle(key) {
+    return {
+      dashboard: 'Visión operativa en tiempo real.',
+      clientes: 'Alta, edición y control de cartera de clientes.',
+      proveedores: 'Gestión de proveedores y deuda comercial.',
+      fventas: 'Facturación de ventas con saldo y estado real.',
+      fcompras: 'Facturas de compra con saldo y estado real.',
+      cobros: 'Cobros con saldo recalculado en SQL.',
+      pagos: 'Pagos con saldo recalculado en SQL.',
+      productos: 'Catálogo de productos y servicios.',
+      reportes: 'Saldos abiertos, flujos y métricas por moneda.',
+    }[key] || '';
+  },
+  handlePrimaryAction() {
+    const m = {
+      clientes: () => this.openClienteModal(),
+      proveedores: () => this.openProveedorModal(),
+      fventas: () => this.openFacturaVentaModal(),
+      fcompras: () => this.openFacturaCompraModal(),
+      cobros: () => this.openCobroModal(),
+      pagos: () => this.openPagoModal(),
+      productos: () => this.openProductoModal(),
+    };
+    m[this.state.currentView]?.();
+  },
+
+  // ── SIDEBAR ───────────────────────────────────────────────────
+  updateSidebar() {
+    const cobrar = this.state.facturasVenta.filter(r => r.estado !== 'anulada').reduce((a, r) => a + Number(r.saldo || 0), 0);
+    const pagar = this.state.facturasCompra.filter(r => r.estado !== 'anulada').reduce((a, r) => a + Number(r.saldo || 0), 0);
+    document.getElementById('sb-cobrar').textContent = this.formatMoney(cobrar, 'ARS');
+    document.getElementById('sb-pagar').textContent = this.formatMoney(pagar, 'ARS');
+    document.getElementById('sb-fv').textContent = String(this.state.facturasVenta.length);
+    document.getElementById('sb-fc').textContent = String(this.state.facturasCompra.length);
+    this.renderNav();
+  },
+
+  // ── RENDER VIEW ───────────────────────────────────────────────
+  renderView() {
+    const el = document.getElementById('view');
+    const renderers = {
+      dashboard: () => this.renderDashboard(),
+      clientes: () => this.renderClientes(),
+      proveedores: () => this.renderProveedores(),
+      fventas: () => this.renderFacturasVenta(),
+      fcompras: () => this.renderFacturasCompra(),
+      cobros: () => this.renderCobros(),
+      pagos: () => this.renderPagos(),
+      productos: () => this.renderProductos(),
+      reportes: () => this.renderReportes(),
+    };
+    el.innerHTML = renderers[this.state.currentView]?.() || '';
+  },
+
+  // ── DASHBOARD ─────────────────────────────────────────────────
+  renderDashboard() {
+    const ventasPend = this.state.facturasVenta.filter(r => r.estado !== 'pagada' && r.estado !== 'anulada');
+    const comprasPend = this.state.facturasCompra.filter(r => r.estado !== 'pagada' && r.estado !== 'anulada');
+    const cobradoMes = this.sumCurrentMonth(this.state.cobros);
+    const pagadoMes = this.sumCurrentMonth(this.state.pagos);
+    const actividad = [
+      ...this.state.cobros.map(r => ({ fecha: r.fecha, tipo: 'Cobro', tercero: r.cliente_nombre, ref: r.factura_numero, importe: r.importe, moneda: r.moneda })),
+      ...this.state.pagos.map(r => ({ fecha: r.fecha, tipo: 'Pago', tercero: r.proveedor_nombre, ref: r.factura_numero, importe: r.importe, moneda: r.moneda }))
+    ].sort((a, b) => String(b.fecha).localeCompare(String(a.fecha))).slice(0, 10);
+
+    return `
+      <div class="stats-grid cols-4">
+        <div class="stat-card"><div class="stat-label">Por cobrar</div><div class="stat-value stat-accent">${this.formatMoney(this.totalSaldo(this.state.facturasVenta), 'ARS')}</div><div class="stat-sub">${ventasPend.length} facturas abiertas</div></div>
+        <div class="stat-card"><div class="stat-label">Por pagar</div><div class="stat-value stat-red">${this.formatMoney(this.totalSaldo(this.state.facturasCompra), 'ARS')}</div><div class="stat-sub">${comprasPend.length} facturas abiertas</div></div>
+        <div class="stat-card"><div class="stat-label">Cobrado este mes</div><div class="stat-value stat-green">${this.formatMoney(cobradoMes, 'ARS')}</div><div class="stat-sub">${this.countCurrentMonth(this.state.cobros)} cobros</div></div>
+        <div class="stat-card"><div class="stat-label">Pagado este mes</div><div class="stat-value stat-amber">${this.formatMoney(pagadoMes, 'ARS')}</div><div class="stat-sub">${this.countCurrentMonth(this.state.pagos)} pagos</div></div>
+      </div>
+      <div class="content-grid cols-2">
+        <div class="card">
+          <div class="section-header"><h3>Facturas de venta abiertas</h3><p>Pendientes y parciales solamente.</p></div>
+          <div class="section-body">
+            ${ventasPend.length === 0 ? this.emptyState('🎉', 'No hay facturas abiertas') : `
+            <table>
+              <thead><tr><th>Fecha</th><th>Cliente</th><th>Número</th><th>Saldo</th><th>Estado</th></tr></thead>
+              <tbody>${ventasPend.slice(0, 8).map(r => `<tr>
+                <td>${this.formatDate(r.fecha)}</td>
+                <td>${this.escape(r.cliente_nombre)}</td>
+                <td class="td-mono">${this.escape(r.numero)}</td>
+                <td class="td-mono">${this.formatMoney(r.saldo, r.moneda)}</td>
+                <td>${this.estadoBadge(r.estado)}</td>
+              </tr>`).join('')}</tbody>
+            </table>`}
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-header"><h3>Actividad reciente</h3><p>Cobros y pagos ordenados por fecha.</p></div>
+          <div class="section-body">
+            ${actividad.length === 0 ? this.emptyState('📋', 'Sin movimientos aún') : actividad.map(r => `
+            <div class="activity-item">
+              <div class="activity-dot ${r.tipo === 'Cobro' ? 'cobro' : 'pago'}"></div>
+              <div class="activity-info">
+                <div class="activity-main">${this.escape(r.tipo)} · ${this.escape(r.tercero || '—')}</div>
+                <div class="activity-sub">${this.formatDate(r.fecha)} · ${this.escape(r.ref || '—')}</div>
+              </div>
+              <div class="activity-amount">${this.formatMoney(r.importe, r.moneda)}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  },
+
+  // ── CLIENTES ──────────────────────────────────────────────────
+  renderClientes() {
+    const q = this.state.filters.clientes.toLowerCase();
+    const rows = this.state.clientes.filter(r => !q || [r.razon_social, r.cuit, r.email].some(v => String(v||'').toLowerCase().includes(q)));
+    return `
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <input class="input input-search" placeholder="🔍 Buscar razón social, CUIT o email…" value="${this.escapeAttr(this.state.filters.clientes)}" oninput="app.setFilter('clientes', this.value)">
+        </div>
+        <div class="toolbar-right">
+          <button class="btn" onclick="app.openImportModal('clientes')">📥 Importar</button>
+          <button class="btn" onclick="app.exportCSV('clientes')">📤 Exportar CSV</button>
+        </div>
+      </div>
+      <div class="card table-wrap">
+        ${rows.length === 0 ? this.emptyState('👤', 'No hay clientes cargados.') : `
+        <table>
+          <thead><tr><th>Razón social</th><th>CUIT</th><th>IVA</th><th>Email</th><th>Teléfono</th><th>Acciones</th></tr></thead>
+          <tbody>${rows.map(r => `<tr>
+            <td><strong>${this.escape(r.razon_social)}</strong>${r.nombre_comercial ? `<div class="text-sm text-muted">${this.escape(r.nombre_comercial)}</div>` : ''}</td>
+            <td class="td-mono">${this.escape(r.cuit || '—')}</td>
+            <td>${this.escape(r.condicion_iva)}</td>
+            <td>${this.escape(r.email || '—')}</td>
+            <td>${this.escape(r.telefono || '—')}</td>
+            <td><div class="td-actions">
+              <button class="btn sm" onclick="app.openClienteModal(${r.id})">✏️ Editar</button>
+              <button class="btn sm danger" onclick="app.deleteCliente(${r.id})">🗑️</button>
+            </div></td>
+          </tr>`).join('')}</tbody>
+        </table>`}
+      </div>`;
+  },
+
+  // ── PROVEEDORES ───────────────────────────────────────────────
+  renderProveedores() {
+    const q = this.state.filters.proveedores.toLowerCase();
+    const rows = this.state.proveedores.filter(r => !q || [r.razon_social, r.cuit, r.email].some(v => String(v||'').toLowerCase().includes(q)));
+    return `
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <input class="input input-search" placeholder="🔍 Buscar razón social, CUIT o email…" value="${this.escapeAttr(this.state.filters.proveedores)}" oninput="app.setFilter('proveedores', this.value)">
+        </div>
+        <div class="toolbar-right">
+          <button class="btn" onclick="app.openImportModal('proveedores')">📥 Importar</button>
+          <button class="btn" onclick="app.exportCSV('proveedores')">📤 Exportar CSV</button>
+        </div>
+      </div>
+      <div class="card table-wrap">
+        ${rows.length === 0 ? this.emptyState('🏭', 'No hay proveedores cargados.') : `
+        <table>
+          <thead><tr><th>Razón social</th><th>CUIT</th><th>IVA</th><th>Email</th><th>Teléfono</th><th>Acciones</th></tr></thead>
+          <tbody>${rows.map(r => `<tr>
+            <td><strong>${this.escape(r.razon_social)}</strong>${r.nombre_comercial ? `<div class="text-sm text-muted">${this.escape(r.nombre_comercial)}</div>` : ''}</td>
+            <td class="td-mono">${this.escape(r.cuit || '—')}</td>
+            <td>${this.escape(r.condicion_iva)}</td>
+            <td>${this.escape(r.email || '—')}</td>
+            <td>${this.escape(r.telefono || '—')}</td>
+            <td><div class="td-actions">
+              <button class="btn sm" onclick="app.openProveedorModal(${r.id})">✏️ Editar</button>
+              <button class="btn sm danger" onclick="app.deleteProveedor(${r.id})">🗑️</button>
+            </div></td>
+          </tr>`).join('')}</tbody>
+        </table>`}
+      </div>`;
+  },
+
+  // ── FACTURAS VENTA ─────────────────────────────────────────────
+  renderFacturasVenta() {
+    const f = this.state.filters;
+    const q = f.fventas.toLowerCase();
+    const rows = this.state.facturasVenta.filter(r => {
+      if (q && ![ r.numero, r.cliente_nombre, r.cliente_cuit].some(v => String(v||'').toLowerCase().includes(q))) return false;
+      if (f.fventas_desde && r.fecha < f.fventas_desde) return false;
+      if (f.fventas_hasta && r.fecha > f.fventas_hasta) return false;
+      return true;
+    });
+    return `
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <input class="input input-search" placeholder="🔍 Buscar factura o cliente…" value="${this.escapeAttr(f.fventas)}" oninput="app.setFilter('fventas', this.value)">
+          <input class="input input-date" type="date" title="Desde" value="${this.escapeAttr(f.fventas_desde)}" onchange="app.setFilter('fventas_desde', this.value)">
+          <input class="input input-date" type="date" title="Hasta" value="${this.escapeAttr(f.fventas_hasta)}" onchange="app.setFilter('fventas_hasta', this.value)">
+          ${f.fventas_desde||f.fventas_hasta ? `<button class="btn sm ghost" onclick="app.clearDateFilter('fventas')">✕ Limpiar fechas</button>` : ''}
+        </div>
+        <div class="toolbar-right">
+          <button class="btn" onclick="app.exportCSV('fventas')">📤 Exportar CSV</button>
+        </div>
+      </div>
+      <div class="card table-wrap">
+        ${rows.length === 0 ? this.emptyState('🧾', 'No hay facturas de venta.') : `
+        <table>
+          <thead><tr><th>Fecha</th><th>Cliente</th><th>Número</th><th>Total</th><th>Cobrado</th><th>Saldo</th><th>Estado</th><th>Vence</th><th>Acciones</th></tr></thead>
+          <tbody>${rows.map(r => `<tr>
+            <td>${this.formatDate(r.fecha)}</td>
+            <td>${this.escape(r.cliente_nombre)}</td>
+            <td class="td-mono">${this.escape(r.numero)}</td>
+            <td class="td-mono">${this.formatMoney(r.total, r.moneda)}</td>
+            <td class="td-mono">${this.formatMoney(r.total_cobrado, r.moneda)}</td>
+            <td class="td-mono"><strong>${this.formatMoney(r.saldo, r.moneda)}</strong></td>
+            <td>${this.estadoBadge(r.estado)}</td>
+            <td>${r.fecha_vencimiento ? this.vencIndicator(r.fecha_vencimiento) : '—'}</td>
+            <td><div class="td-actions">
+              <button class="btn sm" onclick="app.openFacturaVentaModal(${r.id})">✏️ Editar</button>
+              <button class="btn sm danger" onclick="app.deleteFacturaVenta(${r.id})">🗑️</button>
+            </div></td>
+          </tr>`).join('')}</tbody>
+        </table>`}
+      </div>`;
+  },
+
+  // ── FACTURAS COMPRA ────────────────────────────────────────────
+  renderFacturasCompra() {
+    const f = this.state.filters;
+    const q = f.fcompras.toLowerCase();
+    const rows = this.state.facturasCompra.filter(r => {
+      if (q && ![r.numero, r.proveedor_nombre, r.proveedor_cuit].some(v => String(v||'').toLowerCase().includes(q))) return false;
+      if (f.fcompras_desde && r.fecha < f.fcompras_desde) return false;
+      if (f.fcompras_hasta && r.fecha > f.fcompras_hasta) return false;
+      return true;
+    });
+    return `
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <input class="input input-search" placeholder="🔍 Buscar factura o proveedor…" value="${this.escapeAttr(f.fcompras)}" oninput="app.setFilter('fcompras', this.value)">
+          <input class="input input-date" type="date" title="Desde" value="${this.escapeAttr(f.fcompras_desde)}" onchange="app.setFilter('fcompras_desde', this.value)">
+          <input class="input input-date" type="date" title="Hasta" value="${this.escapeAttr(f.fcompras_hasta)}" onchange="app.setFilter('fcompras_hasta', this.value)">
+          ${f.fcompras_desde||f.fcompras_hasta ? `<button class="btn sm ghost" onclick="app.clearDateFilter('fcompras')">✕ Limpiar fechas</button>` : ''}
+        </div>
+        <div class="toolbar-right">
+          <button class="btn" onclick="app.exportCSV('fcompras')">📤 Exportar CSV</button>
+        </div>
+      </div>
+      <div class="card table-wrap">
+        ${rows.length === 0 ? this.emptyState('📦', 'No hay facturas de compra.') : `
+        <table>
+          <thead><tr><th>Fecha</th><th>Proveedor</th><th>Número</th><th>Total</th><th>Pagado</th><th>Saldo</th><th>Estado</th><th>Vence</th><th>Acciones</th></tr></thead>
+          <tbody>${rows.map(r => `<tr>
+            <td>${this.formatDate(r.fecha)}</td>
+            <td>${this.escape(r.proveedor_nombre)}</td>
+            <td class="td-mono">${this.escape(r.numero)}</td>
+            <td class="td-mono">${this.formatMoney(r.total, r.moneda)}</td>
+            <td class="td-mono">${this.formatMoney(r.total_pagado, r.moneda)}</td>
+            <td class="td-mono"><strong>${this.formatMoney(r.saldo, r.moneda)}</strong></td>
+            <td>${this.estadoBadge(r.estado)}</td>
+            <td>${r.fecha_vencimiento ? this.vencIndicator(r.fecha_vencimiento) : '—'}</td>
+            <td><div class="td-actions">
+              <button class="btn sm" onclick="app.openFacturaCompraModal(${r.id})">✏️ Editar</button>
+              <button class="btn sm danger" onclick="app.deleteFacturaCompra(${r.id})">🗑️</button>
+            </div></td>
+          </tr>`).join('')}</tbody>
+        </table>`}
+      </div>`;
+  },
+
+  // ── COBROS ────────────────────────────────────────────────────
+  renderCobros() {
+    const f = this.state.filters;
+    const q = f.cobros.toLowerCase();
+    const rows = this.state.cobros.filter(r => {
+      if (q && ![r.factura_numero, r.cliente_nombre, r.referencia].some(v => String(v||'').toLowerCase().includes(q))) return false;
+      if (f.cobros_desde && r.fecha < f.cobros_desde) return false;
+      if (f.cobros_hasta && r.fecha > f.cobros_hasta) return false;
+      return true;
+    });
+    return `
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <input class="input input-search" placeholder="🔍 Buscar por factura, cliente o referencia…" value="${this.escapeAttr(f.cobros)}" oninput="app.setFilter('cobros', this.value)">
+          <input class="input input-date" type="date" value="${this.escapeAttr(f.cobros_desde)}" onchange="app.setFilter('cobros_desde', this.value)">
+          <input class="input input-date" type="date" value="${this.escapeAttr(f.cobros_hasta)}" onchange="app.setFilter('cobros_hasta', this.value)">
+          ${f.cobros_desde||f.cobros_hasta ? `<button class="btn sm ghost" onclick="app.clearDateFilter('cobros')">✕ Limpiar</button>` : ''}
+        </div>
+        <div class="toolbar-right">
+          <button class="btn" onclick="app.exportCSV('cobros')">📤 Exportar CSV</button>
+        </div>
+      </div>
+      <div class="card table-wrap">
+        ${rows.length === 0 ? this.emptyState('💰', 'No hay cobros cargados.') : `
+        <table>
+          <thead><tr><th>Fecha</th><th>Cliente</th><th>Factura</th><th>Medio</th><th>Importe</th><th>Referencia</th><th>Acciones</th></tr></thead>
+          <tbody>${rows.map(r => `<tr>
+            <td>${this.formatDate(r.fecha)}</td>
+            <td>${this.escape(r.cliente_nombre)}</td>
+            <td class="td-mono">${this.escape(r.factura_numero)}</td>
+            <td>${this.escape(this.medioPagoLabel(r.medio_pago))}</td>
+            <td class="td-mono"><strong>${this.formatMoney(r.importe, r.moneda)}</strong></td>
+            <td>${this.escape(r.referencia || '—')}</td>
+            <td><button class="btn sm danger" onclick="app.deleteCobro(${r.id})">🗑️ Eliminar</button></td>
+          </tr>`).join('')}</tbody>
+        </table>`}
+      </div>`;
+  },
+
+  // ── PAGOS ─────────────────────────────────────────────────────
+  renderPagos() {
+    const f = this.state.filters;
+    const q = f.pagos.toLowerCase();
+    const rows = this.state.pagos.filter(r => {
+      if (q && ![r.factura_numero, r.proveedor_nombre, r.referencia].some(v => String(v||'').toLowerCase().includes(q))) return false;
+      if (f.pagos_desde && r.fecha < f.pagos_desde) return false;
+      if (f.pagos_hasta && r.fecha > f.pagos_hasta) return false;
+      return true;
+    });
+    return `
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <input class="input input-search" placeholder="🔍 Buscar por factura, proveedor o referencia…" value="${this.escapeAttr(f.pagos)}" oninput="app.setFilter('pagos', this.value)">
+          <input class="input input-date" type="date" value="${this.escapeAttr(f.pagos_desde)}" onchange="app.setFilter('pagos_desde', this.value)">
+          <input class="input input-date" type="date" value="${this.escapeAttr(f.pagos_hasta)}" onchange="app.setFilter('pagos_hasta', this.value)">
+          ${f.pagos_desde||f.pagos_hasta ? `<button class="btn sm ghost" onclick="app.clearDateFilter('pagos')">✕ Limpiar</button>` : ''}
+        </div>
+        <div class="toolbar-right">
+          <button class="btn" onclick="app.exportCSV('pagos')">📤 Exportar CSV</button>
+        </div>
+      </div>
+      <div class="card table-wrap">
+        ${rows.length === 0 ? this.emptyState('💳', 'No hay pagos cargados.') : `
+        <table>
+          <thead><tr><th>Fecha</th><th>Proveedor</th><th>Factura</th><th>Medio</th><th>Importe</th><th>Referencia</th><th>Acciones</th></tr></thead>
+          <tbody>${rows.map(r => `<tr>
+            <td>${this.formatDate(r.fecha)}</td>
+            <td>${this.escape(r.proveedor_nombre)}</td>
+            <td class="td-mono">${this.escape(r.factura_numero)}</td>
+            <td>${this.escape(this.medioPagoLabel(r.medio_pago))}</td>
+            <td class="td-mono"><strong>${this.formatMoney(r.importe, r.moneda)}</strong></td>
+            <td>${this.escape(r.referencia || '—')}</td>
+            <td><button class="btn sm danger" onclick="app.deletePago(${r.id})">🗑️ Eliminar</button></td>
+          </tr>`).join('')}</tbody>
+        </table>`}
+      </div>`;
+  },
+
+  // ── PRODUCTOS ─────────────────────────────────────────────────
+  renderProductos() {
+    const q = this.state.filters.productos.toLowerCase();
+    const rows = this.state.productos.filter(r => !q || [r.nombre, r.codigo, r.descripcion].some(v => String(v||'').toLowerCase().includes(q)));
+    return `
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <input class="input input-search" placeholder="🔍 Buscar por nombre, código…" value="${this.escapeAttr(this.state.filters.productos)}" oninput="app.setFilter('productos', this.value)">
+        </div>
+        <div class="toolbar-right">
+          <button class="btn" onclick="app.openImportModal('productos')">📥 Importar</button>
+          <button class="btn" onclick="app.exportCSV('productos')">📤 Exportar CSV</button>
+        </div>
+      </div>
+      <div class="card table-wrap">
+        ${rows.length === 0 ? this.emptyState('🏷️', 'No hay productos cargados. Necesitás crear la tabla <code>productos</code> en Supabase.') : `
+        <table>
+          <thead><tr><th>Código</th><th>Nombre</th><th>Descripción</th><th>Precio ARS</th><th>Precio USD</th><th>Unidad</th><th>Acciones</th></tr></thead>
+          <tbody>${rows.map(r => `<tr>
+            <td class="td-mono">${this.escape(r.codigo || '—')}</td>
+            <td><strong>${this.escape(r.nombre)}</strong></td>
+            <td class="text-muted">${this.escape(r.descripcion || '—')}</td>
+            <td class="td-mono">${r.precio_ars != null ? this.formatMoney(r.precio_ars, 'ARS') : '—'}</td>
+            <td class="td-mono">${r.precio_usd != null ? this.formatMoney(r.precio_usd, 'USD') : '—'}</td>
+            <td>${this.escape(r.unidad || '—')}</td>
+            <td><div class="td-actions">
+              <button class="btn sm" onclick="app.openProductoModal(${r.id})">✏️ Editar</button>
+              <button class="btn sm danger" onclick="app.deleteProducto(${r.id})">🗑️</button>
+            </div></td>
+          </tr>`).join('')}</tbody>
+        </table>`}
+      </div>
+      <div class="card mt-16" style="padding:16px 18px">
+        <p class="text-muted text-sm">💡 Para activar este módulo, ejecutá en Supabase SQL Editor:</p>
+        <pre style="margin-top:10px;padding:14px;background:var(--bg);border-radius:8px;font-size:12px;overflow:auto;color:var(--text-2)">create table if not exists public.productos (
+  id bigint generated always as identity primary key,
+  codigo text,
+  nombre text not null,
+  descripcion text,
+  precio_ars numeric(18,2),
+  precio_usd numeric(18,2),
+  unidad text default 'unidad',
+  activo boolean default true,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+alter table public.productos enable row level security;
+create policy productos_all on public.productos for all to anon, authenticated using (true) with check (true);
+grant select, insert, update, delete on public.productos to anon, authenticated;
+grant usage, select on sequence productos_id_seq to anon, authenticated;</pre>
+      </div>`;
+  },
+
+  // ── REPORTES ──────────────────────────────────────────────────
+  renderReportes() {
+    const moneda = this.state.filters.reportMoneda;
+    const ventasAbiertas = this.state.facturasVenta.filter(r => r.moneda === moneda && r.estado !== 'pagada' && r.estado !== 'anulada');
+    const comprasAbiertas = this.state.facturasCompra.filter(r => r.moneda === moneda && r.estado !== 'pagada' && r.estado !== 'anulada');
+    const cobrosMes = this.sumCurrentMonth(this.state.cobros.filter(r => r.moneda === moneda));
+    const pagosMes = this.sumCurrentMonth(this.state.pagos.filter(r => r.moneda === moneda));
+    const clientesSaldo = this.aggregateByName(ventasAbiertas, 'cliente_nombre');
+    const proveedoresSaldo = this.aggregateByName(comprasAbiertas, 'proveedor_nombre');
+
+    return `
+      <div class="toolbar">
+        <select class="select" style="max-width:180px" onchange="app.setFilter('reportMoneda', this.value)">
+          <option value="ARS" ${moneda==='ARS'?'selected':''}>🇦🇷 ARS</option>
+          <option value="USD" ${moneda==='USD'?'selected':''}>🇺🇸 USD</option>
+        </select>
+        <button class="btn" onclick="app.exportReporte()">📤 Exportar reporte CSV</button>
+      </div>
+      <div class="stats-grid cols-4">
+        <div class="stat-card"><div class="stat-label">Saldo clientes</div><div class="stat-value stat-accent">${this.formatMoney(this.totalSaldo(ventasAbiertas), moneda)}</div><div class="stat-sub">${ventasAbiertas.length} facturas abiertas</div></div>
+        <div class="stat-card"><div class="stat-label">Saldo proveedores</div><div class="stat-value stat-red">${this.formatMoney(this.totalSaldo(comprasAbiertas), moneda)}</div><div class="stat-sub">${comprasAbiertas.length} facturas abiertas</div></div>
+        <div class="stat-card"><div class="stat-label">Cobrado mes actual</div><div class="stat-value stat-green">${this.formatMoney(cobrosMes, moneda)}</div><div class="stat-sub">En ${moneda}</div></div>
+        <div class="stat-card"><div class="stat-label">Pagado mes actual</div><div class="stat-value stat-amber">${this.formatMoney(pagosMes, moneda)}</div><div class="stat-sub">En ${moneda}</div></div>
+      </div>
+      <div class="content-grid cols-2">
+        <div class="card">
+          <div class="section-header"><h3>Saldos por cliente</h3><p>Solo saldos abiertos en ${moneda}.</p></div>
+          <div class="section-body">
+            ${clientesSaldo.length === 0 ? this.emptyState('👤', 'Sin saldo abierto para clientes.') : `
+            <table>
+              <thead><tr><th>Cliente</th><th>Facturas</th><th>Saldo</th></tr></thead>
+              <tbody>${clientesSaldo.map(r => `<tr>
+                <td>${this.escape(r.nombre)}</td>
+                <td>${r.cantidad}</td>
+                <td class="td-mono"><strong>${this.formatMoney(r.saldo, moneda)}</strong></td>
+              </tr>`).join('')}</tbody>
+            </table>`}
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-header"><h3>Saldos por proveedor</h3><p>Solo saldos abiertos en ${moneda}.</p></div>
+          <div class="section-body">
+            ${proveedoresSaldo.length === 0 ? this.emptyState('🏭', 'Sin saldo abierto para proveedores.') : `
+            <table>
+              <thead><tr><th>Proveedor</th><th>Facturas</th><th>Saldo</th></tr></thead>
+              <tbody>${proveedoresSaldo.map(r => `<tr>
+                <td>${this.escape(r.nombre)}</td>
+                <td>${r.cantidad}</td>
+                <td class="td-mono"><strong>${this.formatMoney(r.saldo, moneda)}</strong></td>
+              </tr>`).join('')}</tbody>
+            </table>`}
+          </div>
+        </div>
+      </div>`;
+  },
+
+  // ── MODALS: CLIENTE ───────────────────────────────────────────
+  openClienteModal(id = null) {
+    const row = id ? this.state.clientes.find(r => r.id === id) : null;
+    this.openModal({
+      title: row ? 'Editar cliente' : 'Nuevo cliente',
+      subtitle: row ? `ID ${row.id} · ${row.razon_social}` : 'Completá los datos del nuevo cliente.',
+      body: `<div class="form-grid">
+        <div class="form-field full"><label>Razón social *</label><input id="cl-razon" class="input" value="${this.escapeAttr(row?.razon_social||'')}"></div>
+        <div class="form-field"><label>Nombre comercial</label><input id="cl-nombre" class="input" value="${this.escapeAttr(row?.nombre_comercial||'')}"></div>
+        <div class="form-field"><label>CUIT</label><input id="cl-cuit" class="input" placeholder="20-00000000-0" value="${this.escapeAttr(row?.cuit||'')}"></div>
+        <div class="form-field"><label>Condición IVA</label><select id="cl-iva" class="select">${this.ivaOptions(row?.condicion_iva||'RI')}</select></div>
+        <div class="form-field"><label>Email</label><input id="cl-email" class="input" type="email" value="${this.escapeAttr(row?.email||'')}"></div>
+        <div class="form-field"><label>Teléfono</label><input id="cl-tel" class="input" value="${this.escapeAttr(row?.telefono||'')}"></div>
+        <div class="form-field full"><label>Dirección</label><input id="cl-dir" class="input" value="${this.escapeAttr(row?.direccion||'')}"></div>
+        <div class="form-field full"><label>Observaciones</label><textarea id="cl-obs" class="textarea">${this.escape(row?.observaciones||'')}</textarea></div>
+      </div>`,
+      footer: `<button class="btn" onclick="app.closeModal()">Cancelar</button><button class="btn primary" onclick="app.saveCliente(${id||'null'})">💾 Guardar</button>`
+    });
+  },
+  async saveCliente(id = null) {
+    try {
+      const payload = {
+        razon_social: this.requiredValue('cl-razon', 'La razón social es obligatoria.'),
+        nombre_comercial: this.optionalValue('cl-nombre') || null,
+        cuit: this.optionalValue('cl-cuit') || null,
+        condicion_iva: document.getElementById('cl-iva').value,
+        email: this.validatedEmail('cl-email'),
+        telefono: this.optionalValue('cl-tel') || null,
+        direccion: this.optionalValue('cl-dir') || null,
+        observaciones: this.optionalValue('cl-obs') || null,
+      };
+      id ? await this.update('clientes', id, payload) : await this.insert('clientes', payload);
+      this.closeModal();
+      this.showToast('Cliente guardado correctamente.', 'success');
+      await this.refresh();
+    } catch(e) { this.handleError(e); }
+  },
+  async deleteCliente(id) {
+    if (!confirm('¿Eliminar este cliente? Si tiene movimientos asociados, la base lo bloqueará.')) return;
+    try { await this.remove('clientes', id); this.showToast('Cliente eliminado.', 'success'); await this.refresh(); }
+    catch(e) { this.handleError(e); }
+  },
+
+  // ── MODALS: PROVEEDOR ─────────────────────────────────────────
+  openProveedorModal(id = null) {
+    const row = id ? this.state.proveedores.find(r => r.id === id) : null;
+    this.openModal({
+      title: row ? 'Editar proveedor' : 'Nuevo proveedor',
+      subtitle: row ? `ID ${row.id} · ${row.razon_social}` : 'Completá los datos del nuevo proveedor.',
+      body: `<div class="form-grid">
+        <div class="form-field full"><label>Razón social *</label><input id="pv-razon" class="input" value="${this.escapeAttr(row?.razon_social||'')}"></div>
+        <div class="form-field"><label>Nombre comercial</label><input id="pv-nombre" class="input" value="${this.escapeAttr(row?.nombre_comercial||'')}"></div>
+        <div class="form-field"><label>CUIT</label><input id="pv-cuit" class="input" placeholder="20-00000000-0" value="${this.escapeAttr(row?.cuit||'')}"></div>
+        <div class="form-field"><label>Condición IVA</label><select id="pv-iva" class="select">${this.ivaOptions(row?.condicion_iva||'RI')}</select></div>
+        <div class="form-field"><label>Email</label><input id="pv-email" class="input" type="email" value="${this.escapeAttr(row?.email||'')}"></div>
+        <div class="form-field"><label>Teléfono</label><input id="pv-tel" class="input" value="${this.escapeAttr(row?.telefono||'')}"></div>
+        <div class="form-field full"><label>Dirección</label><input id="pv-dir" class="input" value="${this.escapeAttr(row?.direccion||'')}"></div>
+        <div class="form-field full"><label>Observaciones</label><textarea id="pv-obs" class="textarea">${this.escape(row?.observaciones||'')}</textarea></div>
+      </div>`,
+      footer: `<button class="btn" onclick="app.closeModal()">Cancelar</button><button class="btn primary" onclick="app.saveProveedor(${id||'null'})">💾 Guardar</button>`
+    });
+  },
+  async saveProveedor(id = null) {
+    try {
+      const payload = {
+        razon_social: this.requiredValue('pv-razon', 'La razón social es obligatoria.'),
+        nombre_comercial: this.optionalValue('pv-nombre') || null,
+        cuit: this.optionalValue('pv-cuit') || null,
+        condicion_iva: document.getElementById('pv-iva').value,
+        email: this.validatedEmail('pv-email'),
+        telefono: this.optionalValue('pv-tel') || null,
+        direccion: this.optionalValue('pv-dir') || null,
+        observaciones: this.optionalValue('pv-obs') || null,
+      };
+      id ? await this.update('proveedores', id, payload) : await this.insert('proveedores', payload);
+      this.closeModal();
+      this.showToast('Proveedor guardado.', 'success');
+      await this.refresh();
+    } catch(e) { this.handleError(e); }
+  },
+  async deleteProveedor(id) {
+    if (!confirm('¿Eliminar este proveedor? Si tiene movimientos asociados, la base lo bloqueará.')) return;
+    try { await this.remove('proveedores', id); this.showToast('Proveedor eliminado.', 'success'); await this.refresh(); }
+    catch(e) { this.handleError(e); }
+  },
+
+  // ── MODALS: FACTURA VENTA ─────────────────────────────────────
+  openFacturaVentaModal(id = null) {
+    const row = id ? this.state.facturasVenta.find(r => r.id === id) : null;
+    const opts = this.state.clientes.map(c => `<option value="${c.id}" ${c.id === row?.cliente_id ? 'selected' : ''}>${this.escape(c.razon_social)}</option>`).join('');
+    this.openModal({
+      title: row ? 'Editar factura de venta' : 'Nueva factura de venta',
+      subtitle: 'El saldo y estado son recalculados automáticamente por SQL.',
+      body: `<div class="form-grid">
+        <div class="form-field"><label>Número *</label><input id="fv-num" class="input" value="${this.escapeAttr(row?.numero||'')}"></div>
+        <div class="form-field"><label>Cliente *</label><select id="fv-cli" class="select"><option value="">Seleccionar cliente…</option>${opts}</select></div>
+        <div class="form-field"><label>Fecha *</label><input id="fv-fecha" type="date" class="input" value="${this.escapeAttr(row?.fecha||this.today())}"></div>
+        <div class="form-field"><label>Vencimiento</label><input id="fv-venc" type="date" class="input" value="${this.escapeAttr(row?.fecha_vencimiento||'')}"></div>
+        <div class="form-field"><label>Moneda</label><select id="fv-mon" class="select">${this.monedaOptions(row?.moneda||'ARS')}</select></div>
+        <div class="form-field"><label>Total *</label><input id="fv-total" type="number" step="0.01" min="0.01" class="input" value="${this.escapeAttr(row?.total||'')}"></div>
+        <div class="form-field full"><label>Observaciones</label><textarea id="fv-obs" class="textarea">${this.escape(row?.observaciones||'')}</textarea></div>
+      </div>`,
+      footer: `<button class="btn" onclick="app.closeModal()">Cancelar</button><button class="btn primary" onclick="app.saveFacturaVenta(${id||'null'})">💾 Guardar</button>`
+    });
+  },
+  async saveFacturaVenta(id = null) {
+    try {
+      const payload = {
+        numero: this.requiredValue('fv-num', 'El número de factura es obligatorio.'),
+        cliente_id: this.requiredId('fv-cli', 'Seleccioná un cliente.'),
+        fecha: this.requiredValue('fv-fecha', 'La fecha es obligatoria.'),
+        fecha_vencimiento: this.optionalValue('fv-venc') || null,
+        moneda: document.getElementById('fv-mon').value,
+        total: this.requiredAmount('fv-total', 'El total debe ser mayor a 0.'),
+        observaciones: this.optionalValue('fv-obs') || null,
+      };
+      id ? await this.update('facturas_venta', id, payload) : await this.insert('facturas_venta', payload);
+      this.closeModal();
+      this.showToast('Factura de venta guardada.', 'success');
+      await this.refresh();
+    } catch(e) { this.handleError(e); }
+  },
+  async deleteFacturaVenta(id) {
+    if (!confirm('¿Eliminar esta factura de venta? Si tiene cobros asociados, la base lo bloqueará.')) return;
+    try { await this.remove('facturas_venta', id); this.showToast('Factura eliminada.', 'success'); await this.refresh(); }
+    catch(e) { this.handleError(e); }
+  },
+
+  // ── MODALS: FACTURA COMPRA ────────────────────────────────────
+  openFacturaCompraModal(id = null) {
+    const row = id ? this.state.facturasCompra.find(r => r.id === id) : null;
+    const opts = this.state.proveedores.map(p => `<option value="${p.id}" ${p.id === row?.proveedor_id ? 'selected' : ''}>${this.escape(p.razon_social)}</option>`).join('');
+    this.openModal({
+      title: row ? 'Editar factura de compra' : 'Nueva factura de compra',
+      subtitle: 'El saldo y estado son recalculados automáticamente por SQL.',
+      body: `<div class="form-grid">
+        <div class="form-field"><label>Número *</label><input id="fc-num" class="input" value="${this.escapeAttr(row?.numero||'')}"></div>
+        <div class="form-field"><label>Proveedor *</label><select id="fc-prov" class="select"><option value="">Seleccionar proveedor…</option>${opts}</select></div>
+        <div class="form-field"><label>Fecha *</label><input id="fc-fecha" type="date" class="input" value="${this.escapeAttr(row?.fecha||this.today())}"></div>
+        <div class="form-field"><label>Vencimiento</label><input id="fc-venc" type="date" class="input" value="${this.escapeAttr(row?.fecha_vencimiento||'')}"></div>
+        <div class="form-field"><label>Moneda</label><select id="fc-mon" class="select">${this.monedaOptions(row?.moneda||'ARS')}</select></div>
+        <div class="form-field"><label>Total *</label><input id="fc-total" type="number" step="0.01" min="0.01" class="input" value="${this.escapeAttr(row?.total||'')}"></div>
+        <div class="form-field full"><label>Observaciones</label><textarea id="fc-obs" class="textarea">${this.escape(row?.observaciones||'')}</textarea></div>
+      </div>`,
+      footer: `<button class="btn" onclick="app.closeModal()">Cancelar</button><button class="btn primary" onclick="app.saveFacturaCompra(${id||'null'})">💾 Guardar</button>`
+    });
+  },
+  async saveFacturaCompra(id = null) {
+    try {
+      const payload = {
+        numero: this.requiredValue('fc-num', 'El número de factura es obligatorio.'),
+        proveedor_id: this.requiredId('fc-prov', 'Seleccioná un proveedor.'),
+        fecha: this.requiredValue('fc-fecha', 'La fecha es obligatoria.'),
+        fecha_vencimiento: this.optionalValue('fc-venc') || null,
+        moneda: document.getElementById('fc-mon').value,
+        total: this.requiredAmount('fc-total', 'El total debe ser mayor a 0.'),
+        observaciones: this.optionalValue('fc-obs') || null,
+      };
+      id ? await this.update('facturas_compra', id, payload) : await this.insert('facturas_compra', payload);
+      this.closeModal();
+      this.showToast('Factura de compra guardada.', 'success');
+      await this.refresh();
+    } catch(e) { this.handleError(e); }
+  },
+  async deleteFacturaCompra(id) {
+    if (!confirm('¿Eliminar esta factura de compra? Si tiene pagos asociados, la base lo bloqueará.')) return;
+    try { await this.remove('facturas_compra', id); this.showToast('Factura eliminada.', 'success'); await this.refresh(); }
+    catch(e) { this.handleError(e); }
+  },
+
+  // ── MODALS: COBRO ─────────────────────────────────────────────
+  openCobroModal() {
+    const opts = this.state.facturasVenta
+      .filter(r => Number(r.saldo||0) > 0 && r.estado !== 'anulada')
+      .map(r => `<option value="${r.id}" data-cliente="${this.escapeAttr(r.cliente_nombre)}" data-saldo="${r.saldo}" data-moneda="${r.moneda}">${this.escape(r.numero)} · ${this.escape(r.cliente_nombre)} · saldo: ${this.formatMoney(r.saldo, r.moneda)}</option>`)
+      .join('');
+    this.openModal({
+      title: 'Registrar cobro',
+      subtitle: 'Sólo aparecen facturas con saldo pendiente.',
+      body: `<div class="form-grid">
+        <div class="form-field full"><label>Factura *</label><select id="co-fac" class="select" onchange="app.syncCobroInfo()"><option value="">Seleccionar factura abierta…</option>${opts}</select></div>
+        <div class="form-field"><label>Cliente</label><input id="co-cli" class="input" readonly></div>
+        <div class="form-field"><label>Saldo disponible</label><input id="co-saldo" class="input" readonly></div>
+        <div class="form-field"><label>Fecha *</label><input id="co-fecha" type="date" class="input" value="${this.today()}"></div>
+        <div class="form-field"><label>Importe *</label><input id="co-imp" type="number" step="0.01" min="0.01" class="input"></div>
+        <div class="form-field"><label>Medio de pago</label><select id="co-medio" class="select">${this.medioPagoOptions('transferencia')}</select></div>
+        <div class="form-field"><label>Referencia</label><input id="co-ref" class="input" placeholder="N° de transferencia, cheque…"></div>
+        <div class="form-field full"><label>Observaciones</label><textarea id="co-obs" class="textarea"></textarea></div>
+      </div>`,
+      footer: `<button class="btn" onclick="app.closeModal()">Cancelar</button><button class="btn primary" onclick="app.saveCobro()">💾 Registrar</button>`
+    });
+  },
+  syncCobroInfo() {
+    const sel = document.getElementById('co-fac');
+    const opt = sel.options[sel.selectedIndex];
+    document.getElementById('co-cli').value = opt?.dataset?.cliente || '';
+    const saldo = opt?.dataset?.saldo; const moneda = opt?.dataset?.moneda || 'ARS';
+    document.getElementById('co-saldo').value = saldo ? this.formatMoney(Number(saldo), moneda) : '';
+    // Sugerir el saldo completo
+    const impEl = document.getElementById('co-imp');
+    if (saldo && impEl && !impEl.value) impEl.value = Number(saldo).toFixed(2);
+  },
+  async saveCobro() {
+    try {
+      const facturaId = this.requiredId('co-fac', 'Seleccioná una factura.');
+      const factura = this.state.facturasVenta.find(r => r.id === facturaId);
+      if (!factura) throw new Error('Factura no encontrada.');
+      const importe = this.requiredAmount('co-imp', 'El importe debe ser mayor a 0.');
+      if (importe > Number(factura.saldo || 0) + 0.001) throw new Error('El importe excede el saldo disponible.');
+      await this.rpc('registrar_cobro', {
+        p_factura_id: facturaId,
+        p_fecha: this.requiredValue('co-fecha', 'La fecha es obligatoria.'),
+        p_importe: importe,
+        p_medio_pago: document.getElementById('co-medio').value,
+        p_referencia: this.optionalValue('co-ref') || null,
+        p_observaciones: this.optionalValue('co-obs') || null,
+      });
+      this.closeModal(); this.showToast('Cobro registrado.', 'success'); await this.refresh();
+    } catch(e) { this.handleError(e); }
+  },
+  async deleteCobro(id) {
+    if (!confirm('¿Eliminar este cobro? La factura se recalculará automáticamente.')) return;
+    try { await this.rpc('eliminar_cobro', { p_cobro_id: id }); this.showToast('Cobro eliminado.', 'success'); await this.refresh(); }
+    catch(e) { this.handleError(e); }
+  },
+
+  // ── MODALS: PAGO ─────────────────────────────────────────────
+  openPagoModal() {
+    const opts = this.state.facturasCompra
+      .filter(r => Number(r.saldo||0) > 0 && r.estado !== 'anulada')
+      .map(r => `<option value="${r.id}" data-proveedor="${this.escapeAttr(r.proveedor_nombre)}" data-saldo="${r.saldo}" data-moneda="${r.moneda}">${this.escape(r.numero)} · ${this.escape(r.proveedor_nombre)} · saldo: ${this.formatMoney(r.saldo, r.moneda)}</option>`)
+      .join('');
+    this.openModal({
+      title: 'Registrar pago',
+      subtitle: 'Sólo aparecen facturas con saldo pendiente.',
+      body: `<div class="form-grid">
+        <div class="form-field full"><label>Factura *</label><select id="pa-fac" class="select" onchange="app.syncPagoInfo()"><option value="">Seleccionar factura abierta…</option>${opts}</select></div>
+        <div class="form-field"><label>Proveedor</label><input id="pa-prov" class="input" readonly></div>
+        <div class="form-field"><label>Saldo disponible</label><input id="pa-saldo" class="input" readonly></div>
+        <div class="form-field"><label>Fecha *</label><input id="pa-fecha" type="date" class="input" value="${this.today()}"></div>
+        <div class="form-field"><label>Importe *</label><input id="pa-imp" type="number" step="0.01" min="0.01" class="input"></div>
+        <div class="form-field"><label>Medio de pago</label><select id="pa-medio" class="select">${this.medioPagoOptions('transferencia')}</select></div>
+        <div class="form-field"><label>Referencia</label><input id="pa-ref" class="input" placeholder="N° de transferencia, cheque…"></div>
+        <div class="form-field full"><label>Observaciones</label><textarea id="pa-obs" class="textarea"></textarea></div>
+      </div>`,
+      footer: `<button class="btn" onclick="app.closeModal()">Cancelar</button><button class="btn primary" onclick="app.savePago()">💾 Registrar</button>`
+    });
+  },
+  syncPagoInfo() {
+    const sel = document.getElementById('pa-fac');
+    const opt = sel.options[sel.selectedIndex];
+    document.getElementById('pa-prov').value = opt?.dataset?.proveedor || '';
+    const saldo = opt?.dataset?.saldo; const moneda = opt?.dataset?.moneda || 'ARS';
+    document.getElementById('pa-saldo').value = saldo ? this.formatMoney(Number(saldo), moneda) : '';
+    const impEl = document.getElementById('pa-imp');
+    if (saldo && impEl && !impEl.value) impEl.value = Number(saldo).toFixed(2);
+  },
+  async savePago() {
+    try {
+      const facturaId = this.requiredId('pa-fac', 'Seleccioná una factura.');
+      const factura = this.state.facturasCompra.find(r => r.id === facturaId);
+      if (!factura) throw new Error('Factura no encontrada.');
+      const importe = this.requiredAmount('pa-imp', 'El importe debe ser mayor a 0.');
+      if (importe > Number(factura.saldo || 0) + 0.001) throw new Error('El importe excede el saldo disponible.');
+      await this.rpc('registrar_pago', {
+        p_factura_id: facturaId,
+        p_fecha: this.requiredValue('pa-fecha', 'La fecha es obligatoria.'),
+        p_importe: importe,
+        p_medio_pago: document.getElementById('pa-medio').value,
+        p_referencia: this.optionalValue('pa-ref') || null,
+        p_observaciones: this.optionalValue('pa-obs') || null,
+      });
+      this.closeModal(); this.showToast('Pago registrado.', 'success'); await this.refresh();
+    } catch(e) { this.handleError(e); }
+  },
+  async deletePago(id) {
+    if (!confirm('¿Eliminar este pago? La factura se recalculará automáticamente.')) return;
+    try { await this.rpc('eliminar_pago', { p_pago_id: id }); this.showToast('Pago eliminado.', 'success'); await this.refresh(); }
+    catch(e) { this.handleError(e); }
+  },
+
+  // ── MODALS: PRODUCTO ──────────────────────────────────────────
+  openProductoModal(id = null) {
+    const row = id ? this.state.productos.find(r => r.id === id) : null;
+    this.openModal({
+      title: row ? 'Editar producto' : 'Nuevo producto',
+      subtitle: 'Catálogo de productos y servicios.',
+      body: `<div class="form-grid">
+        <div class="form-field"><label>Código</label><input id="pr-cod" class="input" value="${this.escapeAttr(row?.codigo||'')}"></div>
+        <div class="form-field"><label>Nombre *</label><input id="pr-nom" class="input" value="${this.escapeAttr(row?.nombre||'')}"></div>
+        <div class="form-field full"><label>Descripción</label><textarea id="pr-desc" class="textarea">${this.escape(row?.descripcion||'')}</textarea></div>
+        <div class="form-field"><label>Precio ARS</label><input id="pr-pars" type="number" step="0.01" min="0" class="input" value="${this.escapeAttr(row?.precio_ars||'')}"></div>
+        <div class="form-field"><label>Precio USD</label><input id="pr-pusd" type="number" step="0.01" min="0" class="input" value="${this.escapeAttr(row?.precio_usd||'')}"></div>
+        <div class="form-field"><label>Unidad</label><input id="pr-und" class="input" value="${this.escapeAttr(row?.unidad||'unidad')}"></div>
+      </div>`,
+      footer: `<button class="btn" onclick="app.closeModal()">Cancelar</button><button class="btn primary" onclick="app.saveProducto(${id||'null'})">💾 Guardar</button>`
+    });
+  },
+  async saveProducto(id = null) {
+    try {
+      const nombre = this.requiredValue('pr-nom', 'El nombre es obligatorio.');
+      const payload = {
+        codigo: this.optionalValue('pr-cod') || null,
+        nombre,
+        descripcion: this.optionalValue('pr-desc') || null,
+        precio_ars: this.optionalNumber('pr-pars'),
+        precio_usd: this.optionalNumber('pr-pusd'),
+        unidad: this.optionalValue('pr-und') || 'unidad',
+      };
+      id ? await this.update('productos', id, payload) : await this.insert('productos', payload);
+      this.closeModal(); this.showToast('Producto guardado.', 'success'); await this.refresh();
+    } catch(e) { this.handleError(e); }
+  },
+  async deleteProducto(id) {
+    if (!confirm('¿Eliminar este producto?')) return;
+    try { await this.remove('productos', id); this.showToast('Producto eliminado.', 'success'); await this.refresh(); }
+    catch(e) { this.handleError(e); }
+  },
+
+  // ── IMPORTAR ──────────────────────────────────────────────────
+  openImportModal(entity) {
+    const entityLabels = { clientes: 'clientes', proveedores: 'proveedores', productos: 'productos' };
+    const label = entityLabels[entity] || entity;
+    const schemas = {
+      clientes: 'razon_social, nombre_comercial, cuit, condicion_iva, email, telefono, direccion',
+      proveedores: 'razon_social, nombre_comercial, cuit, condicion_iva, email, telefono, direccion',
+      productos: 'codigo, nombre, descripcion, precio_ars, precio_usd, unidad',
+    };
+    this.openModal({
+      title: `Importar ${label}`,
+      subtitle: `Cargá un archivo CSV o Excel con los datos de ${label}.`,
+      body: `
+        <div>
+          <div class="import-zone" id="import-drop" onclick="document.getElementById('import-file').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="app.handleImportDrop(event,'${entity}')">
+            <div class="import-icon">📂</div>
+            <div style="font-size:14px;font-weight:600">Arrastrá tu archivo acá o hacé click para seleccionar</div>
+            <div class="import-hint">Formatos admitidos: CSV (.csv). Columnas esperadas:</div>
+            <code style="font-size:12px;color:var(--text-2);display:block;margin-top:8px">${this.escape(schemas[entity] || '')}</code>
+          </div>
+          <input type="file" id="import-file" accept=".csv" class="hidden" onchange="app.handleImportFile(event,'${entity}')">
+          <div id="import-result"></div>
+        </div>`,
+      footer: `
+        <button class="btn" onclick="app.closeModal()">Cancelar</button>
+        <button class="btn primary hidden" id="import-confirm-btn" onclick="app.confirmImport('${entity}')">✅ Importar filas</button>`
+    });
+    this._importData = null;
+  },
+  handleImportDrop(e, entity) {
+    e.preventDefault();
+    document.getElementById('import-drop').classList.remove('drag-over');
+    const file = e.dataTransfer?.files?.[0];
+    if (file) this.processImportFile(file, entity);
+  },
+  handleImportFile(e, entity) {
+    const file = e.target.files?.[0];
+    if (file) this.processImportFile(file, entity);
+  },
+  processImportFile(file, entity) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const text = e.target.result;
+        const rows = this.parseCSV(text);
+        if (rows.length === 0) { this.showToast('El archivo está vacío.', 'error'); return; }
+        this._importData = { rows, entity };
+        this.renderImportPreview(rows);
+      } catch(err) {
+        this.showToast('Error al leer el archivo: ' + err.message, 'error');
+      }
+    };
+    reader.readAsText(file, 'UTF-8');
+  },
+  parseCSV(text) {
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) throw new Error('El CSV necesita al menos una fila de encabezado y una de datos.');
+    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,'').toLowerCase());
+    return lines.slice(1).map(line => {
+      // Simple CSV parse (maneja comillas básicas)
+      const vals = [];
+      let cur = ''; let inQ = false;
+      for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (c === '"') { inQ = !inQ; }
+        else if (c === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+        else cur += c;
+      }
+      vals.push(cur.trim());
+      const row = {};
+      headers.forEach((h, i) => { row[h] = vals[i] !== undefined ? vals[i].replace(/^"|"$/g,'') : ''; });
+      return row;
+    }).filter(r => Object.values(r).some(v => v));
+  },
+  renderImportPreview(rows) {
+    const headers = Object.keys(rows[0]);
+    const result = document.getElementById('import-result');
+    result.innerHTML = `
+      <div class="import-result">
+        <p style="margin:12px 0 8px;color:var(--text-2);font-size:13px">✅ ${rows.length} filas detectadas. Revisá la vista previa antes de importar:</p>
+        <div class="import-table-wrap import-preview">
+          <table>
+            <thead><tr>${headers.map(h => `<th>${this.escape(h)}</th>`).join('')}</tr></thead>
+            <tbody>${rows.slice(0,10).map(r => `<tr>${headers.map(h => `<td>${this.escape(r[h]||'')}</td>`).join('')}</tr>`).join('')}</tbody>
+          </table>
+        </div>
+        ${rows.length > 10 ? `<p class="text-muted text-sm" style="margin-top:8px">… y ${rows.length - 10} filas más.</p>` : ''}
+      </div>`;
+    document.getElementById('import-confirm-btn').classList.remove('hidden');
+  },
+  async confirmImport(entity) {
+    if (!this._importData) return;
+    const { rows } = this._importData;
+    const btn = document.getElementById('import-confirm-btn');
+    btn.disabled = true; btn.textContent = 'Importando…';
+    let ok = 0; let fail = 0;
+    for (const row of rows) {
+      try {
+        // Limpieza y normalización
+        const clean = {};
+        for (const [k, v] of Object.entries(row)) {
+          clean[k.trim().toLowerCase()] = v === '' ? null : v;
+        }
+        // Normalizar condicion_iva
+        if (clean.condicion_iva) {
+          const map = { 'responsable inscripto': 'RI', 'monotributista': 'MO', 'exento': 'EX', 'consumidor final': 'CF' };
+          clean.condicion_iva = map[String(clean.condicion_iva).toLowerCase()] || clean.condicion_iva.toUpperCase();
+        }
+        // Normalizar precios
+        ['precio_ars','precio_usd'].forEach(k => {
+          if (clean[k]) clean[k] = Number(String(clean[k]).replace(',','.')) || null;
+        });
+        await this.insert(entity, clean);
+        ok++;
+      } catch { fail++; }
+    }
+    btn.disabled = false;
+    this.closeModal();
+    this.showToast(`Importación completa: ${ok} insertados${fail ? `, ${fail} errores` : ''}.`, ok > 0 ? 'success' : 'error');
+    await this.refresh();
+  },
+
+  // ── EXPORTAR CSV ─────────────────────────────────────────────
+  exportCSV(key) {
+    const sources = {
+      clientes: { data: this.state.clientes, cols: ['id','razon_social','nombre_comercial','cuit','condicion_iva','email','telefono','direccion'] },
+      proveedores: { data: this.state.proveedores, cols: ['id','razon_social','nombre_comercial','cuit','condicion_iva','email','telefono','direccion'] },
+      productos: { data: this.state.productos, cols: ['id','codigo','nombre','descripcion','precio_ars','precio_usd','unidad'] },
+      fventas: { data: this.state.facturasVenta, cols: ['id','numero','cliente_nombre','fecha','fecha_vencimiento','moneda','total','total_cobrado','saldo','estado'] },
+      fcompras: { data: this.state.facturasCompra, cols: ['id','numero','proveedor_nombre','fecha','fecha_vencimiento','moneda','total','total_pagado','saldo','estado'] },
+      cobros: { data: this.state.cobros, cols: ['id','fecha','cliente_nombre','factura_numero','medio_pago','importe','moneda','referencia'] },
+      pagos: { data: this.state.pagos, cols: ['id','fecha','proveedor_nombre','factura_numero','medio_pago','importe','moneda','referencia'] },
+    };
+    const src = sources[key]; if (!src) return;
+    const { data, cols } = src;
+    const csv = [cols.join(','), ...data.map(r => cols.map(c => {
+      const v = r[c] ?? '';
+      return String(v).includes(',') || String(v).includes('"') ? `"${String(v).replace(/"/g,'""')}"` : v;
+    }).join(','))].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), { href: url, download: `${key}_${this.today()}.csv` });
+    a.click(); URL.revokeObjectURL(url);
+    this.showToast('CSV exportado.', 'success');
+  },
+  exportReporte() {
+    const moneda = this.state.filters.reportMoneda;
+    const ventas = this.state.facturasVenta.filter(r => r.moneda === moneda && r.estado !== 'pagada' && r.estado !== 'anulada');
+    const compras = this.state.facturasCompra.filter(r => r.moneda === moneda && r.estado !== 'pagada' && r.estado !== 'anulada');
+    const rows = [
+      ['Tipo', 'Número', 'Tercero', 'Fecha', 'Vencimiento', 'Total', 'Saldo', 'Estado', 'Moneda'],
+      ...ventas.map(r => ['Venta', r.numero, r.cliente_nombre, r.fecha, r.fecha_vencimiento||'', r.total, r.saldo, r.estado, r.moneda]),
+      ...compras.map(r => ['Compra', r.numero, r.proveedor_nombre, r.fecha, r.fecha_vencimiento||'', r.total, r.saldo, r.estado, r.moneda]),
+    ];
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), { href: url, download: `reporte_${moneda}_${this.today()}.csv` });
+    a.click(); URL.revokeObjectURL(url);
+    this.showToast('Reporte CSV exportado.', 'success');
+  },
+
+  // ── MODAL HELPERS ─────────────────────────────────────────────
+  openModal({ title, subtitle='', body, footer='' }) {
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-subtitle').textContent = subtitle;
+    document.getElementById('modal-body').innerHTML = body;
+    document.getElementById('modal-footer').innerHTML = footer;
+    document.getElementById('modal-backdrop').classList.add('open');
+  },
+  closeModal() {
+    document.getElementById('modal-backdrop').classList.remove('open');
+  },
+
+  // ── FILTERS ───────────────────────────────────────────────────
+  setFilter(key, value) {
+    this.state.filters[key] = value;
+    this.renderView();
+  },
+  clearDateFilter(prefix) {
+    this.state.filters[`${prefix}_desde`] = '';
+    this.state.filters[`${prefix}_hasta`] = '';
+    this.renderView();
+  },
+
+  // ── FORM HELPERS ──────────────────────────────────────────────
+  requiredValue(id, msg) {
+    const v = document.getElementById(id)?.value?.trim();
+    if (!v) throw new Error(msg);
+    return v;
+  },
+  optionalValue(id) { return document.getElementById(id)?.value?.trim() || ''; },
+  optionalNumber(id) {
+    const v = Number(document.getElementById(id)?.value);
+    return Number.isFinite(v) && v > 0 ? v : null;
+  },
+  requiredId(id, msg) {
+    const v = Number(document.getElementById(id)?.value);
+    if (!Number.isInteger(v) || v <= 0) throw new Error(msg);
+    return v;
+  },
+  requiredAmount(id, msg) {
+    const v = Number(document.getElementById(id)?.value);
+    if (!Number.isFinite(v) || v <= 0) throw new Error(msg);
+    return Number(v.toFixed(2));
+  },
+  // BUG FIX: validatedEmail ahora sólo valida si hay valor, no lanza error en vacío
+  validatedEmail(id) {
+    const v = this.optionalValue(id);
+    if (!v) return null;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) throw new Error('El email no tiene formato válido.');
+    return v;
+  },
+
+  // ── SELECT OPTIONS ────────────────────────────────────────────
+  ivaOptions(sel) {
+    return [['RI','Responsable inscripto'],['MO','Monotributista'],['EX','Exento'],['CF','Consumidor final']]
+      .map(([v, l]) => `<option value="${v}" ${v===sel?'selected':''}>${l}</option>`).join('');
+  },
+  monedaOptions(sel) {
+    return ['ARS','USD'].map(v => `<option value="${v}" ${v===sel?'selected':''}>${v}</option>`).join('');
+  },
+  medioPagoOptions(sel) {
+    return [['transferencia','Transferencia'],['cheque','Cheque'],['efectivo','Efectivo'],['tarjeta','Tarjeta'],['otro','Otro']]
+      .map(([v, l]) => `<option value="${v}" ${v===sel?'selected':''}>${l}</option>`).join('');
+  },
+  medioPagoLabel(v) {
+    return ({ transferencia:'Transferencia', cheque:'Cheque', efectivo:'Efectivo', tarjeta:'Tarjeta', otro:'Otro' })[v] || v || '—';
+  },
+
+  // ── HELPERS DE DATOS ──────────────────────────────────────────
+  totalSaldo(rows) { return rows.reduce((a, r) => a + Number(r.saldo||0), 0); },
+  aggregateByName(rows, field) {
+    const m = new Map();
+    rows.forEach(r => {
+      const k = r[field] || '—';
+      const cur = m.get(k) || { nombre: k, cantidad: 0, saldo: 0 };
+      cur.cantidad++; cur.saldo += Number(r.saldo||0); m.set(k, cur);
+    });
+    return Array.from(m.values()).sort((a, b) => b.saldo - a.saldo);
+  },
+  countCurrentMonth(rows) {
+    const p = this.today().slice(0,7);
+    return rows.filter(r => String(r.fecha||'').startsWith(p)).length;
+  },
+  sumCurrentMonth(rows) {
+    const p = this.today().slice(0,7);
+    return rows.filter(r => String(r.fecha||'').startsWith(p)).reduce((a, r) => a + Number(r.importe||0), 0);
+  },
+  vencIndicator(fecha) {
+    const hoy = new Date(); hoy.setHours(0,0,0,0);
+    const d = new Date(fecha);
+    const dias = Math.ceil((d - hoy) / 86400000);
+    if (dias < 0) return `<span style="color:var(--red);font-size:12px">⚠️ Vencida</span>`;
+    if (dias <= 7) return `<span style="color:var(--amber);font-size:12px">⏳ ${dias}d</span>`;
+    return `<span class="text-muted" style="font-size:12px">${this.formatDate(fecha)}</span>`;
+  },
+
+  // ── FORMAT ────────────────────────────────────────────────────
+  today() { return new Date().toISOString().slice(0,10); },
+  formatDate(v) {
+    if (!v) return '—';
+    const [y, m, d] = String(v).slice(0,10).split('-');
+    return `${d}/${m}/${y}`;
+  },
+  formatMoney(v, moneda='ARS') {
+    const prefix = moneda === 'USD' ? 'U$S ' : '$ ';
+    return prefix + Number(v||0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  },
+  escape(v) {
+    return String(v ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+  },
+  escapeAttr(v) { return this.escape(v).replaceAll('`','&#96;'); },
+  estadoBadge(v) {
+    const l = { pendiente:'Pendiente', parcial:'Parcial', pagada:'Pagada', anulada:'Anulada' }[v] || v || '—';
+    return `<span class="badge ${this.escapeAttr(v||'anulada')}">${this.escape(l)}</span>`;
+  },
+  emptyState(icon, text) {
+    return `<div class="empty"><div class="empty-icon">${icon}</div><p>${text}</p></div>`;
+  },
+
+  // ── TOAST ─────────────────────────────────────────────────────
+  showToast(msg, type='success') {
+    const container = document.getElementById('toast-container');
+    const icons = { success: '✅', error: '❌' };
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<span>${icons[type]||''}</span><span>${this.escape(msg)}</span>`;
+    container.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 300); }, 2800);
+  },
+
+  // ── AUTH WARNING ─────────────────────────────────────────────
+  showAuthWarning(msg) {
+    const el = document.getElementById('auth-warning');
+    el.textContent = msg; el.classList.remove('hidden');
+  },
+  hideAuthWarning() { document.getElementById('auth-warning').classList.add('hidden'); },
+
+  // ── ERROR ─────────────────────────────────────────────────────
+  handleError(err) {
+    console.error(err);
+    const msg = err instanceof Error ? err.message : String(err);
+    this.showToast(msg, 'error');
+  },
+};
+
+// ── MODAL CLOSE ON BACKDROP ──────────────────────────────────────
+document.getElementById('modal-backdrop').addEventListener('click', e => {
+  if (e.target.id === 'modal-backdrop') app.closeModal();
+});
+
+app.init();
+</script>
 </body>
 </html>
