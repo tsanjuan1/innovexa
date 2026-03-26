@@ -692,7 +692,8 @@ const app = {
     return {
       'Content-Type': 'application/json',
       apikey: this.config.supabaseAnonKey,
-      Authorization: `Bearer ${this.config.supabaseAnonKey}`
+      Authorization: `Bearer ${this.config.supabaseAnonKey}`,
+      'Accept-Profile': 'public',
     };
   },
   get configured() {
@@ -716,17 +717,22 @@ const app = {
   async select(resource, query) { return this.api(`/rest/v1/${resource}?${query}`, { method: 'GET' }); },
   async insert(resource, payload) {
     return this.api(`/rest/v1/${resource}`, {
-      method: 'POST', headers: { Prefer: 'return=representation' }, body: payload
+      method: 'POST',
+      headers: { Prefer: 'return=representation', 'Content-Profile': 'public' },
+      body: payload
     }).then(rows => Array.isArray(rows) ? rows[0] : rows);
   },
   async update(resource, id, payload) {
     return this.api(`/rest/v1/${resource}?id=eq.${id}`, {
-      method: 'PATCH', headers: { Prefer: 'return=representation' }, body: payload
+      method: 'PATCH',
+      headers: { Prefer: 'return=representation', 'Content-Profile': 'public' },
+      body: payload
     }).then(rows => Array.isArray(rows) ? rows[0] : rows);
   },
   async remove(resource, id) {
     return this.api(`/rest/v1/${resource}?id=eq.${id}`, {
-      method: 'DELETE', headers: { Prefer: 'return=representation' }
+      method: 'DELETE',
+      headers: { Prefer: 'return=representation', 'Content-Profile': 'public' }
     });
   },
   async rpc(name, payload) {
@@ -1298,7 +1304,7 @@ grant usage, select on sequence productos_id_seq to anon, authenticated;</pre>
 
   // ── MODALS: CLIENTE ───────────────────────────────────────────
   openClienteModal(id = null) {
-    const row = id ? this.state.clientes.find(r => r.id === id) : null;
+    const row = id != null ? this.state.clientes.find(r => Number(r.id) === Number(id)) : null;
     this.openModal({
       title: row ? 'Editar cliente' : 'Nuevo cliente',
       subtitle: row ? `ID ${row.id} · ${row.razon_social}` : 'Completá los datos del nuevo cliente.',
@@ -1341,7 +1347,7 @@ grant usage, select on sequence productos_id_seq to anon, authenticated;</pre>
 
   // ── MODALS: PROVEEDOR ─────────────────────────────────────────
   openProveedorModal(id = null) {
-    const row = id ? this.state.proveedores.find(r => r.id === id) : null;
+    const row = id != null ? this.state.proveedores.find(r => Number(r.id) === Number(id)) : null;
     this.openModal({
       title: row ? 'Editar proveedor' : 'Nuevo proveedor',
       subtitle: row ? `ID ${row.id} · ${row.razon_social}` : 'Completá los datos del nuevo proveedor.',
@@ -1384,7 +1390,7 @@ grant usage, select on sequence productos_id_seq to anon, authenticated;</pre>
 
   // ── MODALS: FACTURA VENTA ─────────────────────────────────────
   openFacturaVentaModal(id = null) {
-    const row = id ? this.state.facturasVenta.find(r => r.id === id) : null;
+    const row = id != null ? this.state.facturasVenta.find(r => Number(r.id) === Number(id)) : null;
     const opts = this.state.clientes.map(c => `<option value="${c.id}" ${c.id === row?.cliente_id ? 'selected' : ''}>${this.escape(c.razon_social)}</option>`).join('');
     this.openModal({
       title: row ? 'Editar factura de venta' : 'Nueva factura de venta',
@@ -1426,7 +1432,7 @@ grant usage, select on sequence productos_id_seq to anon, authenticated;</pre>
 
   // ── MODALS: FACTURA COMPRA ────────────────────────────────────
   openFacturaCompraModal(id = null) {
-    const row = id ? this.state.facturasCompra.find(r => r.id === id) : null;
+    const row = id != null ? this.state.facturasCompra.find(r => Number(r.id) === Number(id)) : null;
     const opts = this.state.proveedores.map(p => `<option value="${p.id}" ${p.id === row?.proveedor_id ? 'selected' : ''}>${this.escape(p.razon_social)}</option>`).join('');
     this.openModal({
       title: row ? 'Editar factura de compra' : 'Nueva factura de compra',
@@ -1501,7 +1507,7 @@ grant usage, select on sequence productos_id_seq to anon, authenticated;</pre>
   async saveCobro() {
     try {
       const facturaId = this.requiredId('co-fac', 'Seleccioná una factura.');
-      const factura = this.state.facturasVenta.find(r => r.id === facturaId);
+      const factura = this.state.facturasVenta.find(r => Number(r.id) === Number(facturaId));
       if (!factura) throw new Error('Factura no encontrada.');
       const importe = this.requiredAmount('co-imp', 'El importe debe ser mayor a 0.');
       if (importe > Number(factura.saldo || 0) + 0.001) throw new Error('El importe excede el saldo disponible.');
@@ -1556,7 +1562,7 @@ grant usage, select on sequence productos_id_seq to anon, authenticated;</pre>
   async savePago() {
     try {
       const facturaId = this.requiredId('pa-fac', 'Seleccioná una factura.');
-      const factura = this.state.facturasCompra.find(r => r.id === facturaId);
+      const factura = this.state.facturasCompra.find(r => Number(r.id) === Number(facturaId));
       if (!factura) throw new Error('Factura no encontrada.');
       const importe = this.requiredAmount('pa-imp', 'El importe debe ser mayor a 0.');
       if (importe > Number(factura.saldo || 0) + 0.001) throw new Error('El importe excede el saldo disponible.');
@@ -1579,7 +1585,7 @@ grant usage, select on sequence productos_id_seq to anon, authenticated;</pre>
 
   // ── MODALS: PRODUCTO ──────────────────────────────────────────
   openProductoModal(id = null) {
-    const row = id ? this.state.productos.find(r => r.id === id) : null;
+    const row = id != null ? this.state.productos.find(r => Number(r.id) === Number(id)) : null;
     this.openModal({
       title: row ? 'Editar producto' : 'Nuevo producto',
       subtitle: 'Catálogo de productos y servicios.',
@@ -1812,8 +1818,9 @@ grant usage, select on sequence productos_id_seq to anon, authenticated;</pre>
     return Number.isFinite(v) && v > 0 ? v : null;
   },
   requiredId(id, msg) {
-    const v = Number(document.getElementById(id)?.value);
-    if (!Number.isInteger(v) || v <= 0) throw new Error(msg);
+    const raw = document.getElementById(id)?.value;
+    const v = Number(raw);
+    if (!raw || !Number.isFinite(v) || v <= 0) throw new Error(msg);
     return v;
   },
   requiredAmount(id, msg) {
